@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import "primeicons/primeicons.css";
+import "primereact/resources/primereact.min.css";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import "primereact/resources/themes/lara-light-blue/theme.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
