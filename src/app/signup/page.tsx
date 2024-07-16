@@ -13,7 +13,6 @@ export default function Page() {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
-    const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
     console.log({ name, email, password });
@@ -36,10 +35,6 @@ export default function Page() {
           </div>
           <Divider />
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name">Name</label>
-              <InputText id="name" name="name" type="text" />
-            </div>
             <div className="flex flex-col gap-2">
               <label htmlFor="email">Email</label>
               <InputText id="email" name="email" type="email" />

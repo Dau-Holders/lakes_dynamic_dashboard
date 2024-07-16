@@ -10,3 +10,38 @@
 }
 
 
+
+body {
+  background-color: #EFF3F7;
+}
+
+
+
+
+/* styles/global.css */
+.sidebar .p-sidebar-md {
+  width: 250px;
+}
+
+.p-sidebar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 1rem 0;
+}
+
+.p-sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.p-sidebar-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.p-sidebar-link:hover {
+  background-color: #f0f0f0;
+}

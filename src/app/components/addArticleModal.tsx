@@ -5,14 +5,17 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
 import { Calendar } from "primereact/calendar";
 import { MultiSelect } from "primereact/multiselect";
+import { useArticles } from "../contexts/articlesContext";
+import { nanoid } from "nanoid";
 
 export default function AddArticleModal() {
+  const { dispatch } = useArticles();
   const [title, setTitle] = useState("");
-  const [authors, setAuthors] = useState<string[]>([""]); // Initialize with one empty author field
+  const [authors, setAuthors] = useState<string[]>([""]);
   const [abstract, setAbstract] = useState("");
-  const [publicationDate, setPublicationDate] = useState<Date | null>(null);
+  const [publicationDate, setPublicationDate] = useState<Date>(new Date());
   const [keywords, setKeywords] = useState("");
-  const [selectedLakes, setSelectedLakes] = useState<any[]>([]);
+  const [selectedLakes, setSelectedLakes] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({
     title: "",
     authors: "",
@@ -96,7 +99,6 @@ export default function AddArticleModal() {
     const newAuthors = [...authors, ""];
     setAuthors(newAuthors);
 
-    // Clear authors error if there's at least one non-empty author field
     const errorMessage =
       newAuthors.length > 0 &&
       newAuthors.every((author) => author.trim() !== "")
@@ -112,7 +114,6 @@ export default function AddArticleModal() {
     const newAuthors = authors.filter((_, i) => i !== index);
     setAuthors(newAuthors);
 
-    // Update authors error when removing fields
     const errorMessage =
       newAuthors.length > 0 &&
       newAuthors.every((author) => author.trim() !== "")
@@ -146,37 +147,42 @@ export default function AddArticleModal() {
   };
 
   const handleSubmit = () => {
-    // Validate the entire form before submission
     const isValid = validateForm();
-
-    // Submit logic here if form is valid
     if (isValid) {
-      console.log({
-        title,
-        authors,
-        abstract,
-        publicationDate,
-        keywords,
-        selectedLakes,
+      dispatch({
+        type: "ADD_ARTICLE",
+        article: {
+          id: nanoid(),
+          title,
+          authors,
+          abstract,
+          publicationDate,
+          keywords,
+          selectedLakes,
+          approved: "Pending",
+        },
       });
     }
+
+    dispatch({
+      type: "HIDE_ARTICLES_MODAL",
+    });
   };
 
   const greatLakes = [
-    { label: "Lake Victoria", value: "victoria" },
-    { label: "Lake Tanganyika", value: "tanganyika" },
-    { label: "Lake Malawi", value: "malawi" },
-    { label: "Lake Turkana", value: "turkana" },
-    { label: "Lake Albert", value: "albert" },
-    { label: "Lake Kivu", value: "kivu" },
-    { label: "Lake Edward", value: "edward" },
+    { label: "Lake Victoria", value: "Lake Victoria" },
+    { label: "Lake Tanganyika", value: "Lake Tanganyika" },
+    { label: "Lake Malawi", value: "Lake Malawi" },
+    { label: "Lake Turkana", value: "Lake Turkan" },
+    { label: "Lake Albert", value: "Lake Albert" },
+    { label: "Lake Kivu", value: "Lake Kivu" },
+    { label: "Lake Edward", value: "Lake Edward" },
   ];
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Add Journal Article</h2>
-      <div className="mb-4">
-        <label htmlFor="title" className="block text-lg font-medium mb-2">
+      <div className="mb-2">
+        <label htmlFor="title" className="block mb-2">
           Title
         </label>
         <InputText
@@ -188,7 +194,7 @@ export default function AddArticleModal() {
         {errors.title && <p className="text-red-500 mt-1">{errors.title}</p>}
       </div>
       <div className="mb-4">
-        <label htmlFor="authors" className="block text-lg font-medium mb-2">
+        <label htmlFor="authors" className="block mb-2">
           Authors
         </label>
         {authors.map((author, index) => (
@@ -218,12 +224,12 @@ export default function AddArticleModal() {
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="abstract" className="block text-lg font-medium mb-2">
+        <label htmlFor="abstract" className="block font-medium mb-2">
           Abstract
         </label>
         <InputTextarea
           id="abstract"
-          rows={5}
+          rows={3}
           className="w-full p-inputtextarea-sm"
           value={abstract}
           onChange={(e) => handleInputChange("abstract", e.target.value)}
@@ -233,7 +239,7 @@ export default function AddArticleModal() {
         )}
       </div>
       <div className="mb-4">
-        <label htmlFor="date" className="block text-lg font-medium mb-2">
+        <label htmlFor="date" className="block font-medium mb-2">
           Publication Date
         </label>
         <Calendar
@@ -247,7 +253,7 @@ export default function AddArticleModal() {
         )}
       </div>
       <div className="mb-4">
-        <label htmlFor="lakes" className="block text-lg font-medium mb-2">
+        <label htmlFor="lakes" className="block font-medium mb-2">
           Great Lakes of Africa
         </label>
         <MultiSelect
@@ -263,7 +269,7 @@ export default function AddArticleModal() {
         )}
       </div>
       <div className="mb-4">
-        <label htmlFor="keywords" className="block text-lg font-medium mb-2">
+        <label htmlFor="keywords" className="block font-medium mb-2">
           Keywords
         </label>
         <InputText
@@ -277,11 +283,7 @@ export default function AddArticleModal() {
         )}
       </div>
       <div className="mb-4">
-        <Button
-          label="Submit"
-          className="w-full p-button-sm"
-          onClick={handleSubmit}
-        />
+        <Button label="Submit" className="w-full" onClick={handleSubmit} />
       </div>
     </div>
   );
