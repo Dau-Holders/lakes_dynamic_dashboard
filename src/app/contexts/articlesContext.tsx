@@ -8,7 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import { sampleArticles } from "../utils/sampleArticles";
-import { Article } from "../utils/types";
+import { Article, User } from "../utils/types";
 
 type ArticlesAction =
   | { type: "ADD_ARTICLE"; article: Article }
@@ -24,13 +24,16 @@ type ArticlesAction =
       error: string | null;
     }
   | { type: "SHOW_ARTICLES_MODAL" }
-  | { type: "HIDE_ARTICLES_MODAL" };
+  | { type: "HIDE_ARTICLES_MODAL" }
+  | { type: "ADD_USER"; user: User }
+  | { type: "REMOVE_USER" };
 
 interface ArticlesContextType {
   articles: Article[];
   loading: boolean;
   error: string | null;
   showArticlesModal: boolean;
+  currentUser: null | User;
   dispatch: React.Dispatch<ArticlesAction>;
 }
 
@@ -83,6 +86,16 @@ const articlesReducer = (
         ...state,
         showArticlesModal: false,
       };
+    case "ADD_USER":
+      return {
+        ...state,
+        currentUser: action.user,
+      };
+    case "REMOVE_USER":
+      return {
+        ...state,
+        currentUser: null,
+      };
     default:
       return state;
   }
@@ -93,6 +106,7 @@ const initialState: ArticlesContextType = {
   loading: false,
   error: null,
   showArticlesModal: false,
+  currentUser: null,
   dispatch: () => {},
 };
 
@@ -104,7 +118,6 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
         await new Promise((resolve) => setTimeout(resolve, 1000));
-
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,

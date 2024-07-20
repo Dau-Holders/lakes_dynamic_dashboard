@@ -1,20 +1,33 @@
 "use client";
 import { useArticles } from "../contexts/articlesContext";
 import { Dialog } from "primereact/dialog";
-
-import { Sidebar } from "primereact/sidebar";
-import { useState } from "react";
-import { Avatar } from "primereact/avatar";
-import { Toast } from "primereact/toast";
-import { Menu } from "primereact/menu";
+import { useEffect, useState } from "react";
 import AppMenuBar from "../components/appMenuBar";
 import AppSideBar from "../components/sidebar";
 import ArticleList from "../components/articleList";
 import AddArticleModal from "../components/addArticleModal";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 export default function UserDashboard() {
   const { showArticlesModal, dispatch } = useArticles();
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
+
+  const privateApi = useRefreshToken();
+
+  console.log("Hello world from dash");
+
+  useEffect(() => {
+    async function testRequest() {
+      try {
+        const newResponse = await privateApi.get("/profile/me/");
+        console.log(newResponse);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    testRequest();
+  }, []);
 
   function AddArticleModalTitle() {
     return (

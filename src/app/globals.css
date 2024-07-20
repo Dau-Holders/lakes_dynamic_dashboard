@@ -10,12 +10,15 @@
 }
 
 
+.gradient-bg {
+  background: radial-gradient(circle at 12.3% 19.3%, rgb(85, 88, 218) 0%, rgb(63, 81, 181) 100.2%);
+}
+
+
 
 body {
   background-color: #EFF3F7;
 }
-
-
 
 
 /* styles/global.css */
