@@ -1,186 +1,152 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
 import { Calendar } from "primereact/calendar";
-import { MultiSelect } from "primereact/multiselect";
+import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
+import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { useArticles } from "../contexts/articlesContext";
 import { nanoid } from "nanoid";
+import { useAuthContext } from "../contexts/authContext";
+import useRefreshToken from "../hooks/useRefreshToken";
+import { Messages } from "primereact/messages";
+
+interface ArticleFormValues {
+  title: string;
+  authors: { name: string }[];
+  abstract: string;
+  publicationDate: Date;
+  keywords: string;
+  selectedLakes: string[];
+  file: File | null;
+}
 
 export default function AddArticleModal() {
   const { dispatch } = useArticles();
-  const [title, setTitle] = useState("");
-  const [authors, setAuthors] = useState<string[]>([""]);
-  const [abstract, setAbstract] = useState("");
-  const [publicationDate, setPublicationDate] = useState<Date>(new Date());
-  const [keywords, setKeywords] = useState("");
-  const [selectedLakes, setSelectedLakes] = useState<string[]>([]);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({
-    title: "",
-    authors: "",
-    abstract: "",
-    publicationDate: "",
-    keywords: "",
-    selectedLakes: "",
+  const { user } = useAuthContext();
+  const [loading, setLoading] = useState(false);
+  const privateApi = useRefreshToken();
+  const messages = useRef(null);
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+    setValue,
+  } = useForm<ArticleFormValues>({
+    defaultValues: {
+      title: "",
+      authors: [{ name: "" }],
+      abstract: "",
+      publicationDate: new Date(),
+      keywords: "",
+      selectedLakes: [],
+      file: null,
+    },
   });
 
-  const validateField = (fieldName: string, value: any) => {
-    if (!value.trim()) {
-      return `${
-        fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
-      } is required`;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "authors",
+  });
+
+  const onSubmit = async (data: ArticleFormValues) => {
+    if (
+      data.authors.length === 0 ||
+      data.authors.some((author) => !author.name.trim())
+    ) {
+      setError("authors", {
+        type: "manual",
+        message: "At least one author is required",
+      });
+      return;
     }
-    return "";
-  };
 
-  const validateForm = () => {
-    let valid = true;
-    const newErrors: { [key: string]: string } = {};
-
-    newErrors.title = validateField("title", title);
-    newErrors.authors =
-      authors.length > 0 && authors.every((author) => author.trim() !== "")
-        ? ""
-        : "At least one author is required";
-    newErrors.abstract = validateField("abstract", abstract);
-    newErrors.publicationDate = publicationDate
-      ? ""
-      : "Publication Date is required";
-    newErrors.selectedLakes =
-      selectedLakes.length > 0 ? "" : "At least one lake must be selected";
-    newErrors.keywords = validateField("keywords", keywords);
-
-    setErrors(newErrors);
-    return Object.values(newErrors).every((error) => error === "");
-  };
-
-  const handleInputChange = (fieldName: string, value: any) => {
-    const errorMessage = validateField(fieldName, value);
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [fieldName]: errorMessage,
-    }));
-
-    // Update state based on field
-    switch (fieldName) {
-      case "title":
-        setTitle(value);
-        break;
-      case "abstract":
-        setAbstract(value);
-        break;
-      case "keywords":
-        setKeywords(value);
-        break;
-      default:
-        break;
+    if (!data.file) {
+      setError("file", { type: "manual", message: "Please select a file" });
+      return;
     }
-  };
 
-  const handleAuthorChange = (index: number, value: string) => {
-    const newAuthors = [...authors];
-    newAuthors[index] = value;
-    setAuthors(newAuthors);
+    try {
+      setLoading(true);
+      messages.current?.clear();
+      if (!user) return;
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("abstract", data.abstract);
+      formData.append("publicationDate", "2012");
+      formData.append("keywords", data.keywords);
+      formData.append("lake", "Lake Victoria");
+      formData.append("uploader", user.username);
+      formData.append("author", "Alex Masinde");
 
-    const errorMessage =
-      newAuthors.length > 0 &&
-      newAuthors.every((author) => author.trim() !== "")
-        ? ""
-        : "At least one author is required";
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      authors: errorMessage,
-    }));
-  };
+      if (data.file) {
+        formData.append("file", data.file);
+      }
 
-  const addAuthorField = () => {
-    const newAuthors = [...authors, ""];
-    setAuthors(newAuthors);
+      await privateApi.post("/publications/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    const errorMessage =
-      newAuthors.length > 0 &&
-      newAuthors.every((author) => author.trim() !== "")
-        ? ""
-        : "At least one author is required";
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      authors: errorMessage,
-    }));
-  };
-
-  const removeAuthorField = (index: number) => {
-    const newAuthors = authors.filter((_, i) => i !== index);
-    setAuthors(newAuthors);
-
-    const errorMessage =
-      newAuthors.length > 0 &&
-      newAuthors.every((author) => author.trim() !== "")
-        ? ""
-        : "At least one author is required";
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      authors: errorMessage,
-    }));
-  };
-
-  const handlePublicationDateChange = (e: any) => {
-    setPublicationDate(e.value);
-
-    const errorMessage = e.value ? "" : "Publication Date is required";
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      publicationDate: errorMessage,
-    }));
-  };
-
-  const handleLakeChange = (e: any) => {
-    setSelectedLakes(e.value);
-
-    const errorMessage =
-      e.value.length > 0 ? "" : "At least one lake must be selected";
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      selectedLakes: errorMessage,
-    }));
-  };
-
-  const handleSubmit = () => {
-    const isValid = validateForm();
-    if (isValid) {
       dispatch({
         type: "ADD_ARTICLE",
         article: {
           id: nanoid(),
-          title,
-          authors,
-          abstract,
-          publicationDate,
-          keywords,
-          selectedLakes,
+          title: data.title,
+          authors: data.authors.map((author) => author.name),
+          abstract: data.abstract,
+          publicationDate: data.publicationDate,
+          keywords: data.keywords,
+          selectedLakes: data.selectedLakes,
           approved: "Pending",
         },
       });
-    }
 
-    dispatch({
-      type: "HIDE_ARTICLES_MODAL",
-    });
+      dispatch({ type: "HIDE_ARTICLES_MODAL" });
+    } catch (error) {
+      // Handle error appropriately
+      console.error("Error submitting article:", error);
+      messages.current?.clear();
+      messages.current?.show([
+        {
+          severity: "info",
+          detail: "An unexpected error occurred. Please try again.",
+          sticky: true,
+          closable: false,
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const greatLakes = [
     { label: "Lake Victoria", value: "Lake Victoria" },
     { label: "Lake Tanganyika", value: "Lake Tanganyika" },
-    { label: "Lake Malawi", value: "Lake Malawi" },
-    { label: "Lake Turkana", value: "Lake Turkan" },
+    { label: "Lake Malawi/Nissa/Nyasa", value: "Lake Malawi/Nissa/Nyasa" },
+    { label: "Lake Turkana", value: "Lake Turkana" },
     { label: "Lake Albert", value: "Lake Albert" },
     { label: "Lake Kivu", value: "Lake Kivu" },
     { label: "Lake Edward", value: "Lake Edward" },
   ];
 
+  const handleFileUpload = (e: FileUploadHandlerEvent) => {
+    if (e.files && e.files[0]) {
+      setValue("file", e.files[0]);
+      clearErrors("file");
+    }
+  };
+
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto">
+      <Messages ref={messages} />
       <div className="mb-2">
         <label htmlFor="title" className="block mb-2">
           Title
@@ -188,39 +154,49 @@ export default function AddArticleModal() {
         <InputText
           id="title"
           className="w-full p-inputtext-sm"
-          value={title}
-          onChange={(e) => handleInputChange("title", e.target.value)}
+          {...register("title", { required: "Title is required" })}
         />
-        {errors.title && <p className="text-red-500 mt-1">{errors.title}</p>}
+        {errors.title && (
+          <p className="text-red-500 mt-1">{errors.title.message}</p>
+        )}
       </div>
       <div className="mb-4">
         <label htmlFor="authors" className="block mb-2">
           Authors
         </label>
-        {authors.map((author, index) => (
-          <div key={index} className="flex items-center mb-2">
+        {fields.map((author, index) => (
+          <div key={author.id} className="flex items-center mb-2">
             <InputText
-              value={author}
-              onChange={(e) => handleAuthorChange(index, e.target.value)}
+              {...register(`authors.${index}.name`, {
+                required: "Author name is required",
+              })}
               className="w-full p-inputtext-sm"
             />
-            {authors.length > 1 && (
+            {fields.length > 1 && (
               <Button
                 icon="pi pi-minus"
                 className="ml-2 p-button-sm p-button-danger"
-                onClick={() => removeAuthorField(index)}
+                onClick={() => {
+                  remove(index);
+                  clearErrors("authors");
+                }}
               />
             )}
           </div>
         ))}
         {errors.authors && (
-          <p className="text-red-500 mt-1">{errors.authors}</p>
+          <p className="text-red-500 mt-1 mb-2">
+            {errors?.authors[0]?.name?.message}
+          </p>
         )}
         <Button
           icon="pi pi-plus"
           label="Add Author"
           className="p-button-sm p-button-secondary"
-          onClick={addAuthorField}
+          onClick={() => {
+            append({ name: "" });
+            clearErrors("authors");
+          }}
         />
       </div>
       <div className="mb-4">
@@ -231,41 +207,55 @@ export default function AddArticleModal() {
           id="abstract"
           rows={3}
           className="w-full p-inputtextarea-sm"
-          value={abstract}
-          onChange={(e) => handleInputChange("abstract", e.target.value)}
+          {...register("abstract", { required: "Abstract is required" })}
         />
         {errors.abstract && (
-          <p className="text-red-500 mt-1">{errors.abstract}</p>
+          <p className="text-red-500 mt-1">{errors.abstract.message}</p>
         )}
       </div>
       <div className="mb-4">
         <label htmlFor="date" className="block font-medium mb-2">
           Publication Date
         </label>
-        <Calendar
-          id="date"
-          className="w-full p-calendar-sm"
-          value={publicationDate}
-          onChange={handlePublicationDateChange}
+        <Controller
+          control={control}
+          name="publicationDate"
+          rules={{ required: "Publication Date is required" }}
+          render={({ field }) => (
+            <Calendar
+              id="date"
+              view="year"
+              className="w-full p-calendar-sm"
+              value={field.value}
+              onChange={(e) => field.onChange(e.value)}
+            />
+          )}
         />
         {errors.publicationDate && (
-          <p className="text-red-500 mt-1">{errors.publicationDate}</p>
+          <p className="text-red-500 mt-1">{errors.publicationDate.message}</p>
         )}
       </div>
       <div className="mb-4">
         <label htmlFor="lakes" className="block font-medium mb-2">
           Great Lakes of Africa
         </label>
-        <MultiSelect
-          id="lakes"
-          options={greatLakes}
-          className="w-full p-multiselect-sm"
-          value={selectedLakes}
-          display="chip"
-          onChange={handleLakeChange}
+        <Controller
+          control={control}
+          name="selectedLakes"
+          rules={{ required: "At least one lake must be selected" }}
+          render={({ field }) => (
+            <MultiSelect
+              id="lakes"
+              options={greatLakes}
+              className="w-full p-multiselect-sm"
+              value={field.value}
+              display="chip"
+              onChange={(e: MultiSelectChangeEvent) => field.onChange(e.value)}
+            />
+          )}
         />
         {errors.selectedLakes && (
-          <p className="text-red-500 mt-1">{errors.selectedLakes}</p>
+          <p className="text-red-500 mt-1">{errors.selectedLakes.message}</p>
         )}
       </div>
       <div className="mb-4">
@@ -275,16 +265,53 @@ export default function AddArticleModal() {
         <InputText
           id="keywords"
           className="w-full p-inputtext-sm"
-          value={keywords}
-          onChange={(e) => handleInputChange("keywords", e.target.value)}
+          {...register("keywords", { required: "Keywords are required" })}
         />
         {errors.keywords && (
-          <p className="text-red-500 mt-1">{errors.keywords}</p>
+          <p className="text-red-500 mt-1">{errors.keywords.message}</p>
         )}
       </div>
       <div className="mb-4">
-        <Button label="Submit" className="w-full" onClick={handleSubmit} />
+        <label htmlFor="file" className="block font-medium mb-2">
+          Select Publication (PDF only)
+        </label>
+        <Controller
+          control={control}
+          name="file"
+          rules={{ required: "Please select a file" }}
+          render={({ field }) => (
+            <FileUpload
+              id="file"
+              name="file"
+              accept=".pdf"
+              mode="basic"
+              auto
+              customUpload
+              uploadHandler={handleFileUpload}
+              chooseLabel="Choose Publication"
+            />
+          )}
+        />
+        {errors.file && (
+          <p className="text-red-500 mt-1">{errors.file.message}</p>
+        )}
       </div>
-    </div>
+      <div className="mt-4 w-full">
+        <Button
+          style={{ width: "100%" }}
+          type="submit"
+          size="small"
+          disabled={loading}
+        >
+          <div className="flex w-full justify-center">
+            {loading ? (
+              <i className="pi pi-spin pi-spinner"></i>
+            ) : (
+              <p className="text-center">Add Publication</p>
+            )}
+          </div>
+        </Button>
+      </div>
+    </form>
   );
 }

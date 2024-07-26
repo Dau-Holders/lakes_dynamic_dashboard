@@ -1,3 +1,6 @@
+import FullPageLoading from "../components/fullPageLoading";
+import useRefreshToken from "../hooks/useRefreshToken";
+import { api } from "../lib/api";
 import { User } from "../utils/types";
 import {
   useContext,
@@ -5,6 +8,7 @@ import {
   ReactNode,
   useReducer,
   Dispatch,
+  useEffect,
 } from "react";
 
 type AuthContextActions =
@@ -23,7 +27,7 @@ interface AuthContextType {
 
 const initialState: AuthContextType = {
   user: null,
-  loading: false,
+  loading: true,
   dispatch: () => {},
 };
 
@@ -72,13 +76,55 @@ interface AuthContextProviderProps {
 
 function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [state, dispatch] = useReducer(authContextReducer, initialState);
+  const { loading, user } = state;
+  const privateApi = useRefreshToken();
+
+  useEffect(() => {
+    if (user) return;
+
+    async function fetchUser() {
+      try {
+        dispatch({
+          type: "SET_LOADING",
+          payload: true,
+        });
+
+        const response = await privateApi.get("/profile/me/");
+        const currentUser = response.data.profile;
+        dispatch({
+          type: "SET_USER",
+          payload: currentUser,
+        });
+      } catch (error) {
+        console.log(error);
+        dispatch({
+          type: "REMOVE_USER",
+        });
+      } finally {
+        dispatch({
+          type: "SET_LOADING",
+          payload: false,
+        });
+      }
+    }
+
+    fetchUser();
+  }, [user]);
 
   const value = {
     ...state,
     dispatch,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <>
+      {loading ? (
+        <FullPageLoading />
+      ) : (
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+      )}
+    </>
+  );
 }
 
 export { useAuthContext, AuthContextProvider };

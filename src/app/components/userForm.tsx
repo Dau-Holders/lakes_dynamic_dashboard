@@ -1,39 +1,64 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
-import { FileUpload } from "primereact/fileupload";
+import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
+import { useAuthContext } from "../contexts/authContext";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 const genderOptions = [
   { label: "Male", value: "male" },
   { label: "Female", value: "female" },
-  { label: "Other", value: "other" },
 ];
 
 const UserForm: React.FC = () => {
-  const [gender, setGender] = useState();
+  const { user } = useAuthContext();
+  const privateApi = useRefreshToken();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const { handleSubmit, control, setValue } = useForm({
+    defaultValues: {
+      username: user?.username || "",
+      email: user?.email || "",
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      designation: user?.designation || "",
+      gender: user?.gender || "",
+      organization: user?.organization || "",
+      photo: null,
+    },
+  });
 
-    const formData = new FormData(e.currentTarget);
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
 
-    // Example: Submitting form data
-    try {
-      const response = await fetch("https://api.example.com/submit-form", {
-        method: "POST",
-        body: formData,
-      });
-      if (response.ok) {
-        console.log("Form data submitted successfully!");
-        // Additional success handling
+    Object.keys(data).forEach((key) => {
+      if (key === "photo" && data[key] instanceof File) {
+        formData.append(key, data[key], data[key].name);
       } else {
-        console.error("Failed to submit form data:", response.statusText);
-        // Handle error
+        formData.append(key, data[key]);
       }
+    });
+
+    try {
+      const response = await privateApi.patch(
+        `/profile/update/${user?.username}/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
     } catch (error) {
       console.error("Error submitting form data:", error);
-      // Handle network error
+    }
+  };
+
+  const handleFileUpload = (e: FileUploadHandlerEvent) => {
+    if (e.files && e.files[0]) {
+      setValue("photo", e.files[0]);
     }
   };
 
@@ -41,7 +66,11 @@ const UserForm: React.FC = () => {
     <div className="p-6">
       <div className="w-full bg-white p-8 rounded shadow-lg">
         <h2 className="text-lg mb-4 text-gray-600 font-semibold">Profile</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          encType="multipart/form-data"
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-gray-200 pb-4">
               <div className="w-1/2">
@@ -52,15 +81,21 @@ const UserForm: React.FC = () => {
                   Username
                 </label>
                 <span className="text-xs text-gray-400 block">
-                  This will be your display name.
+                  This is your display name.
                 </span>
               </div>
-              <InputText
-                id="username"
+              <Controller
                 name="username"
-                required
-                maxLength={25}
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="username"
+                    {...field}
+                    required
+                    maxLength={25}
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -76,13 +111,19 @@ const UserForm: React.FC = () => {
                   We'll never share your email.
                 </span>
               </div>
-              <InputText
-                id="email"
+              <Controller
                 name="email"
-                type="email"
-                required
-                pattern="^\S+@\S+$"
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="email"
+                    {...field}
+                    type="email"
+                    required
+                    pattern="^\S+@\S+$"
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -98,10 +139,16 @@ const UserForm: React.FC = () => {
                   Enter your first name.
                 </span>
               </div>
-              <InputText
-                id="first_name"
+              <Controller
                 name="first_name"
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="first_name"
+                    {...field}
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -117,10 +164,16 @@ const UserForm: React.FC = () => {
                   Enter your last name.
                 </span>
               </div>
-              <InputText
-                id="last_name"
+              <Controller
                 name="last_name"
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="last_name"
+                    {...field}
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -136,11 +189,17 @@ const UserForm: React.FC = () => {
                   Your professional designation.
                 </span>
               </div>
-              <InputText
-                id="designation"
+              <Controller
                 name="designation"
-                required
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="designation"
+                    {...field}
+                    required
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -156,11 +215,17 @@ const UserForm: React.FC = () => {
                   Select your gender.
                 </span>
               </div>
-              <Dropdown
-                id="gender"
+              <Controller
                 name="gender"
-                options={genderOptions}
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <Dropdown
+                    id="gender"
+                    {...field}
+                    options={genderOptions}
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -176,11 +241,17 @@ const UserForm: React.FC = () => {
                   The name of your organization.
                 </span>
               </div>
-              <InputText
-                id="organization"
+              <Controller
                 name="organization"
-                required
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                control={control}
+                render={({ field }) => (
+                  <InputText
+                    id="organization"
+                    {...field}
+                    required
+                    className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                )}
               />
             </div>
 
@@ -197,12 +268,13 @@ const UserForm: React.FC = () => {
                 </span>
               </div>
               <FileUpload
+                id="photo"
                 name="photo"
-                url="https://your-upload-url.com"
-                className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
-                mode="basic"
                 accept="image/*"
-                maxFileSize={1000000} // Example: 1MB limit
+                mode="basic"
+                customUpload
+                uploadHandler={handleFileUpload}
+                chooseLabel="Choose Photo"
               />
             </div>
           </div>

@@ -1,10 +1,10 @@
 "use client";
-import api from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
+import { api } from "@/app/lib/api";
 
 export default function Page({
   params,
@@ -15,6 +15,7 @@ export default function Page({
   const messages = useRef(null);
 
   useEffect(() => {
+    console.log(params);
     if (!params.uid || !params.token) return;
     console.log(params.uid, params.token);
     messages.current?.clear();
@@ -29,7 +30,6 @@ export default function Page({
     api
       .post("/auth/users/activation/", params)
       .then((response) => {
-        console.log(response);
         messages.current?.clear();
         messages.current?.show([
           {
@@ -40,7 +40,7 @@ export default function Page({
             closable: false,
           },
         ]);
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/"), 3000);
       })
       .catch((error: AxiosError) => {
         console.log(error.response?.data);
@@ -54,7 +54,7 @@ export default function Page({
             closable: false,
           },
         ]);
-        setTimeout(() => router.push("/login"), 10000);
+        setTimeout(() => router.push("/"), 10000);
       });
   }, [params]);
 

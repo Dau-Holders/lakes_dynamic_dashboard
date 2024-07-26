@@ -1,5 +1,4 @@
 "use client";
-
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import Link from "next/link";
@@ -12,13 +11,15 @@ import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
 import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
+import useRefreshToken from "../hooks/useRefreshToken";
+import { useAuthContext } from "../contexts/authContext";
 
 interface LoginInterface {
   email: string;
   password: string;
 }
 
-export default function Page() {
+export default function Login() {
   const {
     register,
     handleSubmit,
@@ -28,13 +29,19 @@ export default function Page() {
 
   const [loading, setLoading] = useState(false);
   const messages = useRef(null);
+  const privateApi = useRefreshToken();
+  const { dispatch } = useAuthContext();
 
   async function onSubmit(data: LoginInterface) {
     setLoading(true);
     try {
-      const response = await api.post("/auth/jwt/create/", data);
-      console.log(response.data);
-      router.push("/articles");
+      await api.post("/auth/jwt/create/", data);
+      const userResponse = await privateApi.get("/profile/me/");
+      console.log(userResponse.data.profile);
+      dispatch({
+        type: "SET_USER",
+        payload: userResponse.data?.profile,
+      });
     } catch (error: AxiosError | any) {
       if (error.response?.data.detail) {
         messages.current?.show([

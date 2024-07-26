@@ -1,8 +1,16 @@
 "use client";
-import Navbar from "./components/navbar";
-import UserDashboard from "./components/userDashboard";
-import { ArticlesProvider } from "./contexts/articlesContext";
+import { useEffect } from "react";
+import Login from "./components/login";
+import { useAuthContext } from "./contexts/authContext";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return <UserDashboard />;
+  const { user } = useAuthContext();
+  const router = useRouter();
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user]);
+  return <Login />;
 }

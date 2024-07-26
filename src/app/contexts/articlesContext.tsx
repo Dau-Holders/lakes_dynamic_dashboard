@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { sampleArticles } from "../utils/sampleArticles";
 import { Article, User } from "../utils/types";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 type ArticlesAction =
   | { type: "ADD_ARTICLE"; article: Article }
@@ -112,16 +113,20 @@ const initialState: ArticlesContextType = {
 
 const ArticlesProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(articlesReducer, initialState);
+  const privateApi = useRefreshToken();
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
+        const response = await privateApi.get("/publications/me/");
+        console.log("Articles response data", response.data);
+
         await new Promise((resolve) => setTimeout(resolve, 1000));
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,
-          articles: sampleArticles,
+          articles: response.data,
           error: null,
         });
       } catch (error) {

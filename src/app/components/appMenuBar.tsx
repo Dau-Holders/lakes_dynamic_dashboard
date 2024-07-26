@@ -1,7 +1,15 @@
 import { Avatar } from "primereact/avatar";
 import { Menu } from "primereact/menu";
+import { useAuthContext } from "../contexts/authContext";
 
 export default function AppMenuBar() {
+  const { user } = useAuthContext();
+
+  const fullName = `${user?.first_name} ${user?.last_name}`;
+  const hasName = fullName.trim() !== "";
+
+  console.log("Full Name", fullName);
+
   const items = [
     {
       command: () => {
@@ -13,14 +21,10 @@ export default function AppMenuBar() {
             onClick={(e) => options.onClick(e)}
             className={`${options.className} p-link flex align-items-center p-2 pl-4 text-color hover:surface-200 border-noround cursor-pointer`}
           >
-            <Avatar
-              image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-              className="mr-2"
-              shape="circle"
-            />
+            <Avatar image={user?.photo} className="mr-2" shape="circle" />
             <div className="flex flex-col align">
-              <span className="font-bold">John Doe</span>
-              <span className="text-sm">Author</span>
+              {hasName ? <span className="font-bold">J</span> : null}
+              <span className="text-sm">{user?.designation}</span>
             </div>
           </button>
         );

@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { useArticles } from "../contexts/articlesContext";
 import { Dialog } from "primereact/dialog";
 import AddArticleModal from "./addArticleModal";
+import { useAuthContext } from "../contexts/authContext";
+import { api, logout } from "../lib/api";
 
 export default function AppSideBar() {
   const { dispatch, showArticlesModal } = useArticles();
   const router = useRouter();
+  const { dispatch: authDispatch } = useAuthContext();
 
   const items: MenuItem[] = [
     {
@@ -40,7 +43,7 @@ export default function AppSideBar() {
           label: "Articles",
           icon: "pi pi-file",
           command: () => {
-            router.push("/articles");
+            router.push("/dashboard/articles");
           },
         },
       ],
@@ -52,21 +55,21 @@ export default function AppSideBar() {
           label: "Profile",
           icon: "pi pi-user",
           command: () => {
-            router.push("/profile");
+            router.push("/dashboard/profile");
           },
         },
         {
           label: "Security",
           icon: "pi pi-cog",
           command: () => {
-            router.push("/security");
+            router.push("/dashboard/security");
           },
         },
         {
           label: "Contact",
           icon: "pi pi-envelope",
           command: () => {
-            router.push("/contact");
+            router.push("/dashboard/contact");
           },
         },
       ],
@@ -77,8 +80,12 @@ export default function AppSideBar() {
         {
           label: "Logout",
           icon: "pi pi-sign-out",
-          command: () => {
-            router.push("/logout");
+          command: async () => {
+            console.log("Logging Out");
+            await api.post("/auth/logout/");
+            authDispatch({
+              type: "REMOVE_USER",
+            });
           },
         },
       ],

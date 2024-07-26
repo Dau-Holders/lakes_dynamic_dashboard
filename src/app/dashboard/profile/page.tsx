@@ -1,9 +1,10 @@
 "use client";
 
 import { Menubar } from "primereact/menubar";
-import AppSideBar from "../components/sidebar";
-import AppMenuBar from "../components/appMenuBar";
-import UserForm from "../components/userForm";
+
+import UserForm from "@/app/components/userForm";
+import AppMenuBar from "@/app/components/appMenuBar";
+import AppSideBar from "@/app/components/sidebar";
 
 export default function Page() {
   return (
