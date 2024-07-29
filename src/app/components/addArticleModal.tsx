@@ -74,7 +74,7 @@ export default function AddArticleModal() {
 
     try {
       setLoading(true);
-      messages.current?.clear();
+      // messages.current?.clear();
       if (!user) return;
       const formData = new FormData();
       formData.append("title", data.title);
@@ -113,15 +113,15 @@ export default function AddArticleModal() {
     } catch (error) {
       // Handle error appropriately
       console.error("Error submitting article:", error);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "info",
-          detail: "An unexpected error occurred. Please try again.",
-          sticky: true,
-          closable: false,
-        },
-      ]);
+      // messages.current?.clear();
+      // messages.current?.show([
+      //   {
+      //     severity: "info",
+      //     detail: "An unexpected error occurred. Please try again.",
+      //     sticky: true,
+      //     closable: false,
+      //   },
+      // ]);
     } finally {
       setLoading(false);
     }
