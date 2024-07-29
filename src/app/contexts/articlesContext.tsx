@@ -10,6 +10,7 @@ import React, {
 import { sampleArticles } from "../utils/sampleArticles";
 import { Article, User } from "../utils/types";
 import useRefreshToken from "../hooks/useRefreshToken";
+import { useAuthContext } from "./authContext";
 
 type ArticlesAction =
   | { type: "ADD_ARTICLE"; article: Article }
@@ -114,8 +115,10 @@ const initialState: ArticlesContextType = {
 const ArticlesProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(articlesReducer, initialState);
   const privateApi = useRefreshToken();
+  const { user } = useAuthContext();
 
   useEffect(() => {
+    if (!user) return;
     const fetchArticles = async () => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
@@ -130,6 +133,7 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
           error: null,
         });
       } catch (error) {
+        console.log(error);
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,
@@ -140,7 +144,7 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchArticles();
-  }, []);
+  }, [user]);
 
   return (
     <ArticlesContext.Provider value={{ ...state, dispatch }}>

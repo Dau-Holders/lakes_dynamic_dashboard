@@ -14,6 +14,8 @@ import { api } from "../lib/api";
 
 interface SignUpInterface {
   username: string;
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
   re_password: string;
@@ -101,6 +103,46 @@ export default function Page() {
                 <small className="p-error">{errors.username.message}</small>
               )}
             </div>
+            <div className="flex flex-col gap-2 mb-4">
+              <IconField iconPosition="left">
+                <InputIcon className="pi pi-user"> </InputIcon>
+                <InputText
+                  {...register("first_name", {
+                    required: "First name is required",
+                  })}
+                  id="first_name"
+                  name="first_name"
+                  type="text"
+                  placeholder="First Name"
+                  className={`w-full p-inputtext-sm ${
+                    errors.first_name && "p-invalid"
+                  }`}
+                />
+              </IconField>
+              {errors.first_name && (
+                <small className="p-error">{errors.first_name.message}</small>
+              )}
+            </div>
+            <div className="flex flex-col gap-2 mb-4">
+              <IconField iconPosition="left">
+                <InputIcon className="pi pi-user"> </InputIcon>
+                <InputText
+                  {...register("last_name", {
+                    required: "Last name is required",
+                  })}
+                  id="last_name"
+                  name="last_name"
+                  type="text"
+                  placeholder="Last Name"
+                  className={`w-full p-inputtext-sm ${
+                    errors.last_name && "p-invalid"
+                  }`}
+                />
+              </IconField>
+              {errors.last_name && (
+                <small className="p-error">{errors.last_name.message}</small>
+              )}
+            </div>
             <div className="flex flex-col gap-2 mb-3">
               <IconField iconPosition="left">
                 <InputIcon className="pi pi-envelope"> </InputIcon>
@@ -173,12 +215,7 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-4 w-full">
-            <Button
-              style={{ width: "100%" }}
-              type="submit"
-              size="small"
-              disabled={loading}
-            >
+            <Button type="submit" size="small" disabled={loading}>
               <div className="flex w-full justify-center">
                 {loading ? (
                   <i className="pi pi-spin pi-spinner"></i>
@@ -192,7 +229,7 @@ export default function Page() {
             <span className="text-gray-600 text-sm">
               Already have an account?{" "}
             </span>
-            <Link href="/login">
+            <Link href="/">
               <span className="text-blue-600 text-sm hover:underline">
                 Log in
               </span>

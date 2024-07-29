@@ -1,8 +1,8 @@
 "use client";
-import AppMenuBar from "../components/appMenuBar";
-import ChangePasswordForm from "../components/changePassword";
-import ContactUsForm from "../components/contactUsForm";
-import AppSideBar from "../components/sidebar";
+
+import AppSideBar from "@/app/components/sidebar";
+import AppMenuBar from "@/app/components/appMenuBar";
+import ChangePasswordForm from "@/app/components/changePassword";
 
 export default function Page() {
   return (

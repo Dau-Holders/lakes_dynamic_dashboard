@@ -3,11 +3,7 @@ import { useArticles } from "../contexts/articlesContext";
 import { Dialog } from "primereact/dialog";
 import AddArticleModal from "./addArticleModal";
 import AppSidebar from "./sidebar";
-import { Sidebar } from "primereact/sidebar";
 import { useState } from "react";
-import { Avatar } from "primereact/avatar";
-import { Toast } from "primereact/toast";
-import { Menu } from "primereact/menu";
 import AppMenuBar from "./appMenuBar";
 
 export default function UserDashboard() {

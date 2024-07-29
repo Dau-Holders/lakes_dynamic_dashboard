@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
@@ -6,6 +6,7 @@ import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
 import { useAuthContext } from "../contexts/authContext";
 import useRefreshToken from "../hooks/useRefreshToken";
+import { Toast } from "primereact/toast";
 
 const genderOptions = [
   { label: "Male", value: "male" },
@@ -15,6 +16,9 @@ const genderOptions = [
 const UserForm: React.FC = () => {
   const { user } = useAuthContext();
   const privateApi = useRefreshToken();
+
+  const [loading, setLoading] = useState(false);
+  const toast = useRef(null);
 
   const { handleSubmit, control, setValue } = useForm({
     defaultValues: {
@@ -41,6 +45,8 @@ const UserForm: React.FC = () => {
     });
 
     try {
+      setLoading(true);
+      // toast.current?.clear();
       const response = await privateApi.patch(
         `/profile/update/${user?.username}/`,
         formData,
@@ -53,6 +59,15 @@ const UserForm: React.FC = () => {
       console.log(response);
     } catch (error) {
       console.error("Error submitting form data:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error updating user details",
+        life: 3000,
+      });
+    } finally {
+      // toast.current?.clear();
+      setLoading(false);
     }
   };
 
@@ -64,6 +79,7 @@ const UserForm: React.FC = () => {
 
   return (
     <div className="p-6">
+      <Toast ref={toast} position="top-center" />
       <div className="w-full bg-white p-8 rounded shadow-lg">
         <h2 className="text-lg mb-4 text-gray-600 font-semibold">Profile</h2>
         <form
@@ -278,13 +294,20 @@ const UserForm: React.FC = () => {
               />
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-end w-full">
-            <Button
-              type="submit"
-              label="Save Changes"
-              className="p-mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            />
-          </div>
+          <Button
+            style={{ width: "100%" }}
+            type="submit"
+            size="small"
+            disabled={loading}
+          >
+            <div className="flex w-full justify-center">
+              {loading ? (
+                <i className="pi pi-spin pi-spinner"></i>
+              ) : (
+                <p className="text-center">Save Changes</p>
+              )}
+            </div>
+          </Button>
         </form>
       </div>
     </div>

@@ -81,7 +81,6 @@ function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   useEffect(() => {
     if (user) return;
-
     async function fetchUser() {
       try {
         dispatch({

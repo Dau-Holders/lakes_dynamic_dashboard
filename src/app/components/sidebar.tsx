@@ -104,7 +104,6 @@ export default function AppSideBar() {
 
   return (
     <div className="min-h-screen min-w-64 bg-white">
-      {/* <Toast ref={toast} /> */}
       <Menu model={items} className="w-full md:w-15rem border-none" />
       <Dialog
         visible={showArticlesModal}
