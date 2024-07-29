@@ -1,7 +1,8 @@
 "use client";
-import AppMenuBar from "../components/appMenuBar";
-import ContactUsForm from "../components/contactUsForm";
-import AppSideBar from "../components/sidebar";
+
+import AppMenuBar from "@/app/components/appMenuBar";
+import ContactUsForm from "@/app/components/contactUsForm";
+import AppSideBar from "@/app/components/sidebar";
 
 export default function Page() {
   return (
