@@ -28,7 +28,7 @@ export default function AddArticleModal() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const privateApi = useRefreshToken();
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
 
   const {
     register,

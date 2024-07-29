@@ -25,10 +25,9 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInterface>();
-  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
   const privateApi = useRefreshToken();
   const { dispatch } = useAuthContext();
 
@@ -43,8 +42,8 @@ export default function Login() {
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
-      if (error.response?.data.detail) {
-        messages.current?.show([
+      if (error.response?.data.detail && messages.current) {
+        messages.current.show([
           {
             severity: "info",
             detail: error.response?.data.detail,

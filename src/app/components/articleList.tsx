@@ -13,19 +13,19 @@ export default function ArticleList() {
     });
   }
 
-  function handleEditArticle(rowData: any) {
-    dispatch({
-      type: "SHOW_EDIT_ARTICLE_MODAL",
-      payload: rowData,
-    });
-  }
+  // function handleEditArticle(rowData: any) {
+  //   dispatch({
+  //     type: "SHOW_EDIT_ARTICLE_MODAL",
+  //     payload: rowData,
+  //   });
+  // }
 
-  function handleDeleteArticle(rowData: any) {
-    dispatch({
-      type: "DELETE_ARTICLE",
-      payload: rowData.id,
-    });
-  }
+  // function handleDeleteArticle(rowData: any) {
+  //   dispatch({
+  //     type: "DELETE_ARTICLE",
+  //     payload: rowData.id,
+  //   });
+  // }
 
   return (
     <div className="bg-white p-6 rounded-lg m-4">
