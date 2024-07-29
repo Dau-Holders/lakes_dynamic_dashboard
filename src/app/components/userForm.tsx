@@ -20,7 +20,16 @@ const UserForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
 
-  const { handleSubmit, control, setValue } = useForm({
+  const { handleSubmit, control, setValue } = useForm<{
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    designation: string;
+    gender: string;
+    organization: string;
+    photo: File | null;
+  }>({
     defaultValues: {
       username: user?.username || "",
       email: user?.email || "",
@@ -59,12 +68,12 @@ const UserForm: React.FC = () => {
       console.log(response);
     } catch (error) {
       console.error("Error submitting form data:", error);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error updating user details",
-        life: 3000,
-      });
+      // toast.current?.show({
+      //   severity: "error",
+      //   summary: "Error",
+      //   detail: "Error updating user details",
+      //   life: 3000,
+      // });
     } finally {
       // toast.current?.clear();
       setLoading(false);
@@ -72,7 +81,7 @@ const UserForm: React.FC = () => {
   };
 
   const handleFileUpload = (e: FileUploadHandlerEvent) => {
-    if (e.files && e.files[0]) {
+    if (e.files && e.files?.[0] instanceof File) {
       setValue("photo", e.files[0]);
     }
   };
