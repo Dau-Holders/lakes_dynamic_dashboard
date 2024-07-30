@@ -1,12 +1,13 @@
 export interface Article {
   id: string;
   title: string;
-  authors: string[];
+  author: string;
   abstract: string;
-  publicationDate: Date;
+  year: string;
   keywords: string;
-  selectedLakes: string[];
-  approved: "Pending" | "Approved" | "Rejected";
+  lake: string[];
+  is_published: boolean;
+  status: "pending" | "approved" | "rejected";
 }
 
 export interface User {

@@ -57,6 +57,12 @@ const UserForm: React.FC = () => {
 
     try {
       setLoading(true);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error updating user details",
+        life: 3000,
+      });
       const response = await privateApi.patch(
         `/profile/update/${user?.username}/`,
         formData,

@@ -8,8 +8,6 @@ export default function AppMenuBar() {
   const fullName = `${user?.first_name} ${user?.last_name}`;
   const hasName = fullName.trim() !== "";
 
-  console.log("All user details", user);
-
   const items = [
     {
       command: () => {
