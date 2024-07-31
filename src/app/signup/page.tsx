@@ -42,15 +42,15 @@ export default function Page() {
       const response = await api.post("/auth/users/", data);
       console.log(response.data);
       reset();
-      messages.current?.show([
-        {
-          severity: "info",
-          detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
-          sticky: true,
-          closable: false,
-        },
-      ]);
-      setTimeout(() => messages.current?.clear(), 10000);
+      // messages.current?.show([
+      //   {
+      //     severity: "info",
+      //     detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
+      //     sticky: true,
+      //     closable: false,
+      //   },
+      // ]);
+      // setTimeout(() => messages.current?.clear(), 10000);
     } catch (error: AxiosError | any) {
       if (error.response?.data) {
         const serverErrors = error.response.data;
