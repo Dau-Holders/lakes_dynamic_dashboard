@@ -31,9 +31,6 @@ const UserForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
 
-<<<<<<< HEAD
-  const { handleSubmit, control, setValue } = useForm<UserFormValues>({
-=======
   const { handleSubmit, control, setValue } = useForm<{
     username: string;
     email: string;
@@ -44,7 +41,6 @@ const UserForm: React.FC = () => {
     organization: string;
     photo: File | null;
   }>({
->>>>>>> main
     defaultValues: {
       username: user?.username || "",
       email: user?.email || "",
