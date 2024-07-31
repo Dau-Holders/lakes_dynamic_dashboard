@@ -13,12 +13,23 @@ const genderOptions = [
   { label: "Female", value: "female" },
 ];
 
+interface UserFormValues {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  designation: string;
+  gender: string;
+  organization: string;
+  photo: File | null;
+}
+
 const UserForm: React.FC = () => {
   const { user } = useAuthContext();
   const privateApi = useRefreshToken();
 
   const [loading, setLoading] = useState(false);
-  const toast = useRef(null);
+  const toast = useRef<Toast>(null);
 
   const { handleSubmit, control, setValue } = useForm<{
     username: string;
@@ -55,7 +66,12 @@ const UserForm: React.FC = () => {
 
     try {
       setLoading(true);
-      // toast.current?.clear();
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error updating user details",
+        life: 3000,
+      });
       const response = await privateApi.patch(
         `/profile/update/${user?.username}/`,
         formData,
@@ -75,7 +91,6 @@ const UserForm: React.FC = () => {
       //   life: 3000,
       // });
     } finally {
-      // toast.current?.clear();
       setLoading(false);
     }
   };

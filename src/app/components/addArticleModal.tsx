@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import { useAuthContext } from "../contexts/authContext";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { Messages } from "primereact/messages";
+import { Article } from "../utils/types";
 
 interface ArticleFormValues {
   title: string;
@@ -24,11 +25,15 @@ interface ArticleFormValues {
 }
 
 export default function AddArticleModal() {
-  const { dispatch } = useArticles();
+  const { dispatch, selectedArticle, articles } = useArticles();
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const privateApi = useRefreshToken();
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
+
+  const selectedArticleDetails = articles.find(
+    (article) => article.id === selectedArticle
+  );
 
   const {
     register,
@@ -39,16 +44,44 @@ export default function AddArticleModal() {
     clearErrors,
     setValue,
   } = useForm<ArticleFormValues>({
-    defaultValues: {
-      title: "",
-      authors: [{ name: "" }],
-      abstract: "",
-      publicationDate: new Date(),
-      keywords: "",
-      selectedLakes: [],
-      file: null,
-    },
+    defaultValues: selectedArticleDetails
+      ? {
+          title: selectedArticleDetails.title,
+          authors: selectedArticleDetails.author.split(",").map((author) => {
+            return { name: author };
+          }),
+          abstract: selectedArticleDetails.abstract,
+          publicationDate: new Date(selectedArticleDetails.year),
+          keywords: selectedArticleDetails.keywords,
+          selectedLakes: selectedArticleDetails.lake,
+          file: null,
+        }
+      : {
+          title: "",
+          authors: [{ name: "" }],
+          abstract: "",
+          publicationDate: new Date(),
+          keywords: "",
+          selectedLakes: [],
+          file: null,
+        },
   });
+
+  useEffect(() => {
+    if (selectedArticleDetails) {
+      setValue("title", selectedArticleDetails.title);
+      setValue(
+        "authors",
+        selectedArticleDetails.author.split(",").map((author) => {
+          return { name: author };
+        })
+      );
+      setValue("abstract", selectedArticleDetails.abstract);
+      setValue("publicationDate", new Date(selectedArticleDetails.year));
+      setValue("keywords", selectedArticleDetails.keywords);
+      setValue("selectedLakes", selectedArticleDetails.lake);
+    }
+  }, [selectedArticleDetails, setValue]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -67,7 +100,7 @@ export default function AddArticleModal() {
       return;
     }
 
-    if (!data.file) {
+    if (!data.file && !selectedArticleDetails) {
       setError("file", { type: "manual", message: "Please select a file" });
       return;
     }
@@ -77,41 +110,70 @@ export default function AddArticleModal() {
       // messages.current?.clear();
       if (!user) return;
       const formData = new FormData();
+      const selectedLakes = data.selectedLakes.join(",");
+      const authors = data.authors.map((author) => author.name).join(",");
       formData.append("title", data.title);
       formData.append("abstract", data.abstract);
-      formData.append("publicationDate", "2012");
+      formData.append("publicationDate", data.publicationDate.toISOString());
       formData.append("keywords", data.keywords);
-      formData.append("lake", "Lake Victoria");
+      formData.append("lake", selectedLakes);
       formData.append("uploader", user.username);
-      formData.append("author", "Alex Masinde");
+      formData.append("author", authors);
 
       if (data.file) {
         formData.append("file", data.file);
       }
 
-      await privateApi.post("/publications/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      if (selectedArticleDetails) {
+        // Update existing article
+        await privateApi.patch(
+          `/publications/${selectedArticleDetails.id}/`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-      dispatch({
-        type: "ADD_ARTICLE",
-        article: {
+        const updatedArticle: Article = {
+          ...selectedArticleDetails,
+          title: data.title,
+          author: authors,
+          abstract: data.abstract,
+          year: data.publicationDate.getFullYear().toString(),
+          keywords: data.keywords,
+          lake: data.selectedLakes,
+        };
+
+        dispatch({
+          type: "UPDATE_ARTICLE",
+          article: updatedArticle,
+        });
+      } else {
+        await privateApi.post("/publications/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        const newArticle: Article = {
           id: nanoid(),
           title: data.title,
-          authors: data.authors.map((author) => author.name),
+          author: authors,
           abstract: data.abstract,
-          publicationDate: data.publicationDate,
+          year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
-          selectedLakes: data.selectedLakes,
-          approved: "Pending",
-        },
-      });
+          lake: data.selectedLakes,
+          is_published: false,
+          status: "pending",
+        };
 
-      dispatch({ type: "HIDE_ARTICLES_MODAL" });
+        dispatch({
+          type: "ADD_ARTICLE",
+          article: newArticle,
+        });
+      }
     } catch (error) {
-      // Handle error appropriately
       console.error("Error submitting article:", error);
       // messages.current?.clear();
       // messages.current?.show([
@@ -278,7 +340,9 @@ export default function AddArticleModal() {
         <Controller
           control={control}
           name="file"
-          rules={{ required: "Please select a file" }}
+          rules={{
+            required: !selectedArticleDetails && "Please select a file",
+          }}
           render={({ field }) => (
             <FileUpload
               id="file"
@@ -307,7 +371,11 @@ export default function AddArticleModal() {
             {loading ? (
               <i className="pi pi-spin pi-spinner"></i>
             ) : (
-              <p className="text-center">Add Publication</p>
+              <p className="text-center">
+                {selectedArticleDetails
+                  ? "Update Publication"
+                  : "Add Publication"}
+              </p>
             )}
           </div>
         </Button>

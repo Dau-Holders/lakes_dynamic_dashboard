@@ -1,5 +1,4 @@
 "use client";
-
 import React, {
   createContext,
   useContext,
@@ -7,7 +6,6 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { sampleArticles } from "../utils/sampleArticles";
 import { Article, User } from "../utils/types";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { useAuthContext } from "./authContext";
@@ -28,7 +26,10 @@ type ArticlesAction =
   | { type: "SHOW_ARTICLES_MODAL" }
   | { type: "HIDE_ARTICLES_MODAL" }
   | { type: "ADD_USER"; user: User }
-  | { type: "REMOVE_USER" };
+  | { type: "REMOVE_USER" }
+  | { type: "SET_SELECTED_ARTICLE"; id: string }
+  | { type: "CLEAR_SELECTED_ARTICLE" }
+  | { type: "DELETE_ARTICLE"; id: string };
 
 interface ArticlesContextType {
   articles: Article[];
@@ -36,6 +37,7 @@ interface ArticlesContextType {
   error: string | null;
   showArticlesModal: boolean;
   currentUser: null | User;
+  selectedArticle: string;
   dispatch: React.Dispatch<ArticlesAction>;
 }
 
@@ -49,7 +51,11 @@ const articlesReducer = (
 ): ArticlesContextType => {
   switch (action.type) {
     case "ADD_ARTICLE":
-      return { ...state, articles: [...state.articles, action.article] };
+      return {
+        ...state,
+        articles: [...state.articles, action.article],
+        showArticlesModal: false,
+      };
     case "REMOVE_ARTICLE":
       return {
         ...state,
@@ -61,6 +67,8 @@ const articlesReducer = (
         articles: state.articles.map((article) =>
           article.id === action.article.id ? action.article : article
         ),
+        showArticlesModal: false,
+        selectedArticle: "",
       };
     case "SET_ARTICLES":
       return {
@@ -82,6 +90,7 @@ const articlesReducer = (
       return {
         ...state,
         showArticlesModal: true,
+        selectedArticle: "",
       };
     case "HIDE_ARTICLES_MODAL":
       return {
@@ -98,6 +107,22 @@ const articlesReducer = (
         ...state,
         currentUser: null,
       };
+    case "SET_SELECTED_ARTICLE":
+      return {
+        ...state,
+        selectedArticle: action.id,
+        showArticlesModal: true,
+      };
+    case "CLEAR_SELECTED_ARTICLE":
+      return {
+        ...state,
+        selectedArticle: "",
+      };
+    case "DELETE_ARTICLE":
+      return {
+        ...state,
+        articles: state.articles.filter((article) => article.id !== action.id),
+      };
     default:
       return state;
   }
@@ -109,6 +134,7 @@ const initialState: ArticlesContextType = {
   error: null,
   showArticlesModal: false,
   currentUser: null,
+  selectedArticle: "",
   dispatch: () => {},
 };
 
@@ -123,8 +149,7 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
         const response = await privateApi.get("/publications/me/");
-        console.log("Articles response data", response.data);
-
+        console.log(response.data);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         dispatch({
           type: "SET_ARTICLES_LOADING",

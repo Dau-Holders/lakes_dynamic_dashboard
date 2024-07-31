@@ -12,7 +12,7 @@ export default function Page({
   params: { uid: string; token: string };
 }) {
   const router = useRouter();
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
 
   useEffect(() => {
     console.log(params);

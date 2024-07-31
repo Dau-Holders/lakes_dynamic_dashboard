@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
-import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { useAuthContext } from "../contexts/authContext";
@@ -25,10 +24,9 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInterface>();
-  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
   const privateApi = useRefreshToken();
   const { dispatch } = useAuthContext();
 
@@ -37,6 +35,8 @@ export default function Login() {
     try {
       await api.post("/auth/jwt/create/", data);
       const userResponse = await privateApi.get("/profile/me/");
+
+      console.log(userResponse);
       console.log(userResponse.data.profile);
       dispatch({
         type: "SET_USER",

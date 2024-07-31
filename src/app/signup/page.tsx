@@ -34,7 +34,7 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
 
   const password = watch("password");
-  const messages = useRef(null);
+  const messages = useRef<Messages>(null);
 
   async function onSubmit(data: SignUpInterface) {
     setLoading(true);
