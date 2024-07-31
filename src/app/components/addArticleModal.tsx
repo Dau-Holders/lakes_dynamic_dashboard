@@ -107,7 +107,7 @@ export default function AddArticleModal() {
 
     try {
       setLoading(true);
-      messages.current?.clear();
+      // messages.current?.clear();
       if (!user) return;
       const formData = new FormData();
       const selectedLakes = data.selectedLakes.join(",");
@@ -175,15 +175,15 @@ export default function AddArticleModal() {
       }
     } catch (error) {
       console.error("Error submitting article:", error);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "info",
-          detail: "An unexpected error occurred. Please try again.",
-          sticky: true,
-          closable: false,
-        },
-      ]);
+      // messages.current?.clear();
+      // messages.current?.show([
+      //   {
+      //     severity: "info",
+      //     detail: "An unexpected error occurred. Please try again.",
+      //     sticky: true,
+      //     closable: false,
+      //   },
+      // ]);
     } finally {
       setLoading(false);
     }
