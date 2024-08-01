@@ -166,10 +166,6 @@ function iconsBodyTemplate(rowData: any) {
     });
   }
 
-  function handleDownloadArticle() {
-    router.push(rowData.file, "_blank");
-  }
-
   function handleDeleteArticle() {
     console.log("Testing");
   }
