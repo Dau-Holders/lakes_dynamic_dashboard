@@ -3,9 +3,13 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useArticles } from "../contexts/articlesContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
+
+  const router = useRouter();
 
   function showArticlesModal() {
     dispatch({
@@ -119,7 +123,10 @@ function keywordsBodyTemplate(rowData: any) {
   return (
     <div className="flex flex-col">
       {keyWordList.map((keyword: string) => (
-        <div className="flex items-center space-x-2 text-gray-700 text-sm mb-1">
+        <div
+          className="flex items-center space-x-2 text-gray-700 text-sm mb-1"
+          key={keyword}
+        >
           <i className="pi pi-tags text-xs text-green-600 mr-1" />
           <p className="text-gray-600 text-sm mt-1" key={keyword}>
             {keyword}
@@ -164,12 +171,17 @@ function approvedBodyTemplate(rowData: any) {
 
 function iconsBodyTemplate(rowData: any) {
   const { dispatch } = useArticles();
+  const router = useRouter();
 
   function handleEditArticle() {
     dispatch({
       type: "SET_SELECTED_ARTICLE",
       id: rowData.id,
     });
+  }
+
+  function handleDeleteArticle() {
+    console.log("Testing");
   }
 
   return (
@@ -180,18 +192,15 @@ function iconsBodyTemplate(rowData: any) {
         disabled={rowData.status !== "pending"}
         onClick={() => handleEditArticle()}
       />
-      <Button
+      {/* <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={true}
-        // onClick={() => handleDeleteArticle()}
-      />
-      <Button
-        icon="pi pi-download"
-        className="w-10 h-10"
-        disabled={true}
-        // onClick={() => handleDownloadArticle()}
-      />
+        disabled={false}
+        onClick={() => handleDeleteArticle()}
+      /> */}
+      <Link href={rowData.file} target="blank">
+        <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
+      </Link>
     </div>
   );
 }
