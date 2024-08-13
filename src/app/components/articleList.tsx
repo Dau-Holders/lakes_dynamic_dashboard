@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useArticles } from "../contexts/articlesContext";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import useRefreshToken from "../hooks/useRefreshToken";
+import { Toast } from "primereact/toast";
+import { useRouter } from "next/navigation";
 
 export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
-
-  const router = useRouter();
 
   function showArticlesModal() {
     dispatch({
@@ -76,8 +76,19 @@ function titleBodyTemplate(rowData: any) {
     rowData.title.length > 20
       ? rowData.title.slice(0, 20) + "..."
       : rowData.title;
+
+  const router = useRouter();
+
+  function handleClick() {
+    console.log("Title Clicked");
+    router.push("/articles/testId");
+  }
+
   return (
-    <div className="flex items-center space-x-2 ">
+    <div
+      className="flex items-center space-x-2 cursor-pointer"
+      onClick={handleClick}
+    >
       <i className="pi pi-book text-xs text-[#6366F1] mr-1" />
       <p className="text-gray-600 text-sm mt-1">{title}</p>
     </div>
@@ -157,7 +168,9 @@ function approvedBodyTemplate(rowData: any) {
 
 function iconsBodyTemplate(rowData: any) {
   const { dispatch } = useArticles();
-  const router = useRouter();
+  const privateApi = useRefreshToken();
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const toast = useRef<Toast>(null);
 
   function handleEditArticle() {
     dispatch({
@@ -166,24 +179,44 @@ function iconsBodyTemplate(rowData: any) {
     });
   }
 
-  function handleDeleteArticle() {
-    console.log("Testing");
+  async function handleDeleteArticle() {
+    const id = rowData.id;
+    try {
+      setDeleteLoading(true);
+      const response = await privateApi.delete(`/publications/${id}`);
+      dispatch({
+        type: "DELETE_ARTICLE",
+        id,
+      });
+      console.log(response);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error deleting publication",
+      });
+      console.log(err);
+    } finally {
+      setDeleteLoading(false);
+    }
   }
 
   return (
     <div className="flex gap-2">
+      <Toast ref={toast} />
+
       <Button
         icon="pi pi-pencil"
         className="w-10 h-10"
         disabled={rowData.status !== "pending"}
         onClick={() => handleEditArticle()}
       />
-      {/* <Button
+      <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={false}
+        disabled={deleteLoading}
         onClick={() => handleDeleteArticle()}
-      /> */}
+      />
       <Link href={rowData.file} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
       </Link>

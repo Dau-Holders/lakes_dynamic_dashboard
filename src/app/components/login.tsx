@@ -77,11 +77,11 @@ export default function Login() {
   }
 
   return (
-    <main className="flex justify-center items-center min-h-screen p-4 gradient-bg">
+    <main className="flex justify-center items-center min-h-screen max-h-screen max-w-[100%] p-4 gradient-bg">
       <div className="w-full max-w-md lg:max-w-lg p-4 lg:p-0">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white rounded shadow-md w-full lg:w-[450px] p-8 md:p-10 "
+          className="bg-white rounded md:shadow-md w-full lg:w-[450px] p-8 md:p-10 "
         >
           <Messages ref={messages} />
           <div className="text-center mb-4 flex justify-center items-center gap-2"></div>
