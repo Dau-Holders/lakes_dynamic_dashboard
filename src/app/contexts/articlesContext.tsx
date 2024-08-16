@@ -148,8 +148,8 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
     const fetchArticles = async () => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
-        const response = await privateApi.get("/publications/me/");
-        console.log("Article response data", response.data);
+        const response = await privateApi.get("/publications/");
+        console.log(response.data);
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,

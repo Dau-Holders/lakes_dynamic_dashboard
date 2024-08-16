@@ -33,7 +33,6 @@ export default function ArticleList() {
         paginator
         rows={6}
         dataKey="id"
-        style={{ backgroundColor: "red" }}
         loading={loading}
         emptyMessage="No publications found"
       >
@@ -81,7 +80,9 @@ function titleBodyTemplate(rowData: any) {
 
   function handleClick() {
     console.log("Title Clicked");
-    router.push("/articles/testId");
+
+    const testId = "1256871i2mklp";
+    router.push(`/articles/${testId}`);
   }
 
   return (
@@ -135,25 +136,25 @@ function keywordsBodyTemplate(rowData: any) {
 }
 
 function approvedBodyTemplate(rowData: any) {
-  const status = rowData.is_published;
+  const status = rowData.status;
   let chipClass = "";
   let chipLabel = "";
   let iconClass = "";
 
   switch (status) {
-    case true:
+    case "approved":
       chipClass =
         "bg-[#A0E6BA] text-[#237640] font-bold w-fit px-2 py-1 rounded-md text-sm";
       chipLabel = "Approved";
       iconClass = "pi pi-check text-green-600";
       break;
-    case false:
+    case "pending":
       chipClass =
         "bg-[#F6DE95] text-[#816204] w-fit font-bold px-2 py-1 rounded-md text-sm";
       chipLabel = "Pending";
       iconClass = "pi pi-hourglass text-yellow-600";
       break;
-    case "Rejected":
+    case "rejected":
       chipClass =
         "bg-[#F6B0D2] text-[#822854] w-fit font-bold px-2 py-1 rounded-md text-sm";
       chipLabel = "Rejected";
