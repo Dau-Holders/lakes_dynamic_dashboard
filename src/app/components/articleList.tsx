@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useArticles } from "../contexts/articlesContext";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import useRefreshToken from "../hooks/useRefreshToken";
+import { Toast } from "primereact/toast";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "../contexts/authContext";
 
 export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
+  const { user } = useAuthContext();
 
-  const router = useRouter();
+  const isAdmin = user?.designation === "admin";
 
   function showArticlesModal() {
     dispatch({
@@ -31,6 +35,10 @@ export default function ArticleList() {
   //   });
   // }
 
+  const buttonsBodyTemplate = isAdmin
+    ? iconsAdminBodyTemplate
+    : iconsBodyTemplate;
+
   return (
     <div className="bg-white p-6 rounded-lg m-4">
       <div className="flex justify-between mb-4">
@@ -47,7 +55,6 @@ export default function ArticleList() {
         paginator
         rows={6}
         dataKey="id"
-        style={{ backgroundColor: "red" }}
         loading={loading}
         emptyMessage="No publications found"
       >
@@ -79,7 +86,7 @@ export default function ArticleList() {
           header="Approval Status"
           body={approvedBodyTemplate}
         />
-        <Column header="Actions" body={iconsBodyTemplate} />
+        <Column header="Actions" body={buttonsBodyTemplate} />
       </DataTable>
     </div>
   );
@@ -90,8 +97,21 @@ function titleBodyTemplate(rowData: any) {
     rowData.title.length > 20
       ? rowData.title.slice(0, 20) + "..."
       : rowData.title;
+
+  const router = useRouter();
+
+  function handleClick() {
+    console.log("Title Clicked");
+
+    const testId = "1256871i2mklp";
+    router.push(`/articles/${testId}`);
+  }
+
   return (
-    <div className="flex items-center space-x-2 ">
+    <div
+      className="flex items-center space-x-2 cursor-pointer"
+      onClick={handleClick}
+    >
       <i className="pi pi-book text-xs text-[#6366F1] mr-1" />
       <p className="text-gray-600 text-sm mt-1">{title}</p>
     </div>
@@ -107,9 +127,10 @@ function yearBodyTemplate(rowData: any) {
 }
 
 function lakeBodyTemplate(rowData: any) {
+  const lakeList = rowData.lake;
   return (
     <div className="flex items-center space-x-2 ">
-      {rowData.lake.map((lake: string) => (
+      {lakeList.map((lake: string) => (
         <div className="flex items-center" key={lake}>
           <p className="text-gray-600 text-sm mt-1">{lake}</p>
         </div>
@@ -120,6 +141,7 @@ function lakeBodyTemplate(rowData: any) {
 
 function keywordsBodyTemplate(rowData: any) {
   const keyWordList = rowData.keywords.split(",");
+
   return (
     <div className="flex flex-col">
       {keyWordList.map((keyword: string) => (
@@ -138,25 +160,25 @@ function keywordsBodyTemplate(rowData: any) {
 }
 
 function approvedBodyTemplate(rowData: any) {
-  const status = rowData.is_published;
+  const status = rowData.status;
   let chipClass = "";
   let chipLabel = "";
   let iconClass = "";
 
   switch (status) {
-    case true:
+    case "approved":
       chipClass =
         "bg-[#A0E6BA] text-[#237640] font-bold w-fit px-2 py-1 rounded-md text-sm";
       chipLabel = "Approved";
       iconClass = "pi pi-check text-green-600";
       break;
-    case false:
+    case "pending":
       chipClass =
         "bg-[#F6DE95] text-[#816204] w-fit font-bold px-2 py-1 rounded-md text-sm";
       chipLabel = "Pending";
       iconClass = "pi pi-hourglass text-yellow-600";
       break;
-    case "Rejected":
+    case "rejected":
       chipClass =
         "bg-[#F6B0D2] text-[#822854] w-fit font-bold px-2 py-1 rounded-md text-sm";
       chipLabel = "Rejected";
@@ -171,7 +193,9 @@ function approvedBodyTemplate(rowData: any) {
 
 function iconsBodyTemplate(rowData: any) {
   const { dispatch } = useArticles();
-  const router = useRouter();
+  const privateApi = useRefreshToken();
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const toast = useRef<Toast>(null);
 
   function handleEditArticle() {
     dispatch({
@@ -180,24 +204,64 @@ function iconsBodyTemplate(rowData: any) {
     });
   }
 
-  function handleDeleteArticle() {
-    console.log("Testing");
+  async function handleDeleteArticle() {
+    const id = rowData.id;
+    try {
+      setDeleteLoading(true);
+      const response = await privateApi.delete(`/publications/${id}`);
+      dispatch({
+        type: "DELETE_ARTICLE",
+        id,
+      });
+      console.log(response);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error deleting publication",
+      });
+      console.log(err);
+    } finally {
+      setDeleteLoading(false);
+    }
   }
 
   return (
     <div className="flex gap-2">
+      <Toast ref={toast} />
+
       <Button
         icon="pi pi-pencil"
         className="w-10 h-10"
         disabled={rowData.status !== "pending"}
         onClick={() => handleEditArticle()}
       />
-      {/* <Button
+      <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={false}
+        disabled={deleteLoading || rowData.status === "approved"}
         onClick={() => handleDeleteArticle()}
-      /> */}
+      />
+      <Link href={rowData.file} target="blank">
+        <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
+      </Link>
+    </div>
+  );
+}
+
+function iconsAdminBodyTemplate(rowData: any) {
+  return (
+    <div className="flex gap-2">
+      <Button
+        icon="pi pi-check"
+        className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
+        disabled={rowData.status !== "pending"}
+      />
+      <Button
+        icon="pi pi-times"
+        className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
+        disabled={rowData.status !== "pending"}
+      />
       <Link href={rowData.file} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
       </Link>

@@ -22,3 +22,36 @@ export interface User {
   designation: string;
   photo: string;
 }
+
+export interface MetadataPayload {
+  id: string;
+  title: string;
+  description: string;
+  period: string;
+  email: string;
+  file: string;
+  uploader: string;
+  lake: string;
+  status: string;
+}
+
+export interface ProjectPayload {
+  id: string;
+  title: string;
+  description: string;
+  latitude: string;
+  longitude: string;
+  uploader: string;
+  status: string;
+  lake: string;
+}
+
+export interface PhotoPayload {
+  id: string;
+
+  description: string;
+  capture_date: Date;
+  lake: string;
+  uploader: string;
+  image: string;
+}

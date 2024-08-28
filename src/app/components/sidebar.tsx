@@ -10,8 +10,8 @@ import { api, logout } from "../lib/api";
 
 export default function AppSideBar() {
   const { dispatch, showArticlesModal } = useArticles();
-  const router = useRouter();
   const { dispatch: authDispatch } = useAuthContext();
+  const router = useRouter();
 
   const items: MenuItem[] = [
     {
@@ -27,10 +27,10 @@ export default function AppSideBar() {
       separator: true,
     },
     {
-      label: "Documents",
+      label: "Publications",
       items: [
         {
-          label: "Add Article",
+          label: "Add Publication",
           icon: "pi pi-plus",
           command: () => {
             console.log("Button Clicked");
@@ -40,10 +40,31 @@ export default function AppSideBar() {
           },
         },
         {
-          label: "Articles",
+          label: "Publications",
           icon: "pi pi-file",
           command: () => {
             router.push("/dashboard/articles");
+          },
+        },
+        {
+          label: "Metadata",
+          icon: "pi pi-list",
+          command: () => {
+            router.push("/dashboard/metadata");
+          },
+        },
+        {
+          label: "Projects",
+          icon: "pi pi-briefcase",
+          command: () => {
+            router.push("/dashboard/projects");
+          },
+        },
+        {
+          label: "Photo Gallery",
+          icon: "pi pi-images",
+          command: () => {
+            router.push("/dashboard/photos");
           },
         },
       ],
@@ -58,20 +79,20 @@ export default function AppSideBar() {
             router.push("/dashboard/profile");
           },
         },
-        {
-          label: "Security",
-          icon: "pi pi-cog",
-          command: () => {
-            router.push("/dashboard/security");
-          },
-        },
-        {
-          label: "Contact",
-          icon: "pi pi-envelope",
-          command: () => {
-            router.push("/dashboard/contact");
-          },
-        },
+        // {
+        //   label: "Security",
+        //   icon: "pi pi-cog",
+        //   command: () => {
+        //     router.push("/dashboard/security");
+        //   },
+        // },
+        // {
+        //   label: "Contact",
+        //   icon: "pi pi-envelope",
+        //   command: () => {
+        //     router.push("/dashboard/contact");
+        //   },
+        // },
       ],
     },
     {

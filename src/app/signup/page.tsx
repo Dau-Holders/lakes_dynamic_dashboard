@@ -215,7 +215,12 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-4 w-full">
-            <Button type="submit" size="small" disabled={loading}>
+            <Button
+              type="submit"
+              size="small"
+              disabled={loading}
+              style={{ width: "100%" }}
+            >
               <div className="flex w-full justify-center">
                 {loading ? (
                   <i className="pi pi-spin pi-spinner"></i>
