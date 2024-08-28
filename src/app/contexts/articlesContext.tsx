@@ -29,7 +29,9 @@ type ArticlesAction =
   | { type: "REMOVE_USER" }
   | { type: "SET_SELECTED_ARTICLE"; id: string }
   | { type: "CLEAR_SELECTED_ARTICLE" }
-  | { type: "DELETE_ARTICLE"; id: string };
+  | { type: "DELETE_ARTICLE"; id: string }
+  | { type: "APPROVE_ARTICLE"; id: string }
+  | { type: "REJECT_ARTICLE"; id: string };
 
 interface ArticlesContextType {
   articles: Article[];
@@ -122,6 +124,24 @@ const articlesReducer = (
       return {
         ...state,
         articles: state.articles.filter((article) => article.id !== action.id),
+      };
+    case "APPROVE_ARTICLE":
+      return {
+        ...state,
+        articles: state.articles.map((article) =>
+          article.id === action.id
+            ? { ...article, status: "approved" }
+            : article
+        ),
+      };
+    case "REJECT_ARTICLE":
+      return {
+        ...state,
+        articles: state.articles.map((article) =>
+          article.id === action.id
+            ? { ...article, status: "rejected" }
+            : article
+        ),
       };
     default:
       return state;

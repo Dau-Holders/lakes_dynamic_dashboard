@@ -107,10 +107,10 @@ export default function AddArticleModal() {
 
     try {
       setLoading(true);
-      // messages.current?.clear();
       if (!user) return;
       const formData = new FormData();
       const selectedLakes = data.selectedLakes.join(",");
+      console.log(selectedLakes);
       const authors = data.authors.map((author) => author.name).join(",");
       formData.append("title", data.title);
       formData.append("abstract", data.abstract);
@@ -125,8 +125,7 @@ export default function AddArticleModal() {
       }
 
       if (selectedArticleDetails) {
-        // Update existing article
-        await privateApi.patch(
+        const articleResponse = await privateApi.patch(
           `/publications/${selectedArticleDetails.id}/`,
           formData,
           {
@@ -144,6 +143,7 @@ export default function AddArticleModal() {
           year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
           lake: data.selectedLakes,
+          file: articleResponse.data?.file,
         };
 
         dispatch({
@@ -151,11 +151,15 @@ export default function AddArticleModal() {
           article: updatedArticle,
         });
       } else {
-        await privateApi.post("/publications/", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const articleResponse = await privateApi.post(
+          "/publications/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         const newArticle: Article = {
           id: nanoid(),
           title: data.title,
@@ -166,6 +170,7 @@ export default function AddArticleModal() {
           lake: data.selectedLakes,
           is_published: false,
           status: "pending",
+          file: articleResponse.data?.file,
         };
 
         dispatch({
@@ -175,15 +180,17 @@ export default function AddArticleModal() {
       }
     } catch (error) {
       console.error("Error submitting article:", error);
-      // messages.current?.clear();
-      // messages.current?.show([
-      //   {
-      //     severity: "info",
-      //     detail: "An unexpected error occurred. Please try again.",
-      //     sticky: true,
-      //     closable: false,
-      //   },
-      // ]);
+      messages.current?.show([
+        {
+          severity: "info",
+          detail: "An unexpected error occurred. Please try again.",
+          sticky: true,
+          closable: false,
+        },
+      ]);
+      setTimeout(() => {
+        messages.current?.clear();
+      }, 5000);
     } finally {
       setLoading(false);
     }
