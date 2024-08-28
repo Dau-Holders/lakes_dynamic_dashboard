@@ -40,6 +40,7 @@ export default function Login() {
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
+<<<<<<< HEAD
       if (error.response?.data.detail && messages.current) {
         messages.current.show([
           {
@@ -49,6 +50,18 @@ export default function Login() {
             closable: false,
           },
         ]);
+=======
+      if (error.response?.data.detail) {
+        // messages.current?.show([
+        //   {
+        //     severity: "info",
+        //     detail: error.response?.data.detail,
+        //     sticky: true,
+        //     closable: false,
+        //   },
+        // ]);
+
+>>>>>>> origin/main
         setTimeout(() => {
           messages.current?.clear();
         }, 5000);
