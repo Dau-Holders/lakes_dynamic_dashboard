@@ -4,7 +4,6 @@ import { Button } from "primereact/button";
 import Link from "next/link";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-
 import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
 import { AxiosError } from "axios";
@@ -36,14 +35,11 @@ export default function Login() {
       await api.post("/auth/jwt/create/", data);
       const userResponse = await privateApi.get("/profile/me/");
 
-      console.log(userResponse);
-      console.log(userResponse.data.profile);
       dispatch({
         type: "SET_USER",
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
-      console.log(error);
       if (error.response?.data.detail && messages.current) {
         messages.current.show([
           {

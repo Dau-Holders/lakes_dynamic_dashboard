@@ -145,11 +145,18 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!user) return;
-    console.log("This ran");
     const fetchArticles = async () => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
-        const response = await privateApi.get("/publications/me/");
+
+        const isAdmin = user.designation === "admin";
+
+        const fetchURL = isAdmin
+          ? "/publications/unpublished/"
+          : "/publications/me/";
+
+        const response = await privateApi.get(fetchURL);
+
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,
