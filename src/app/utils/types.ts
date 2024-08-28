@@ -8,6 +8,7 @@ export interface Article {
   lake: string[];
   is_published: boolean;
   status: "pending" | "approved" | "rejected";
+  file: string;
 }
 
 export interface User {

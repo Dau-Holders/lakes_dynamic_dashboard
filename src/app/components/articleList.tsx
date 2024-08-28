@@ -31,7 +31,7 @@ export default function ArticleList() {
         <p className="font-bold text-xl">Publications</p>
         <Button
           icon="pi pi-plus"
-          label="Add Article"
+          label="Add Publication"
           onClick={showArticlesModal}
           outlined
         />
@@ -95,8 +95,8 @@ function titleBodyTemplate(rowData: any) {
 
   return (
     <div
-      className="flex items-center space-x-2 cursor-pointer"
-      onClick={handleClick}
+      className="flex items-center space-x-2"
+      // onClick={handleClick}
     >
       <i className="pi pi-book text-xs text-[#6366F1] mr-1" />
       <p className="text-gray-600 text-sm mt-1">{title}</p>
@@ -206,6 +206,9 @@ function iconsBodyTemplate(rowData: any) {
         summary: "Error",
         detail: "Error deleting publication",
       });
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
       console.log(err);
     } finally {
       setDeleteLoading(false);
@@ -236,20 +239,109 @@ function iconsBodyTemplate(rowData: any) {
 }
 
 function iconsAdminBodyTemplate(rowData: any) {
+  const { dispatch } = useArticles();
+  const privateApi = useRefreshToken();
+  const [loading, setLoading] = useState<boolean>(false);
+  const toast = useRef<Toast>(null);
+
+  async function handleApprove() {
+    const id = rowData.id;
+    setLoading(true);
+    try {
+      await privateApi.patch(`/publications/unpublished/${id}`, {
+        status: "approved",
+      });
+
+      dispatch({
+        type: "APPROVE_ARTICLE",
+        id,
+      });
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Publication approved successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error approving publication",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReject() {
+    const id = rowData.id;
+    setLoading(true);
+    try {
+      await privateApi.patch(`/publications/unpublished/${id}`, {
+        status: "rejected",
+      });
+
+      dispatch({
+        type: "REJECT_ARTICLE",
+        id,
+      });
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Publication rejected successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error rejecting publication",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex gap-2">
       <Button
         icon="pi pi-check"
         className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
-        disabled={rowData.status !== "pending"}
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleApprove}
       />
       <Button
         icon="pi pi-times"
         className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
-        disabled={rowData.status !== "pending"}
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleReject}
       />
       <Link href={rowData.file} target="blank">
-        <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
+        <Button
+          icon="pi pi-download"
+          className="w-10 h-10"
+          disabled={loading}
+        />
       </Link>
     </div>
   );

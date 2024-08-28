@@ -56,6 +56,9 @@ export default function Page() {
             closable: false,
           },
         ]);
+        setTimeout(() => {
+          toast.current?.clear();
+        }, 5000);
       } else {
         toast.current?.show([
           {
@@ -65,6 +68,9 @@ export default function Page() {
             closable: false,
           },
         ]);
+        setTimeout(() => {
+          toast.current?.clear();
+        }, 5000);
       }
     } finally {
       setSingleMetadataLoading(false);
