@@ -94,7 +94,6 @@ function AuthContextProvider({ children }: AuthContextProviderProps) {
           payload: response.data.profile,
         });
       } catch (error) {
-        console.log(error);
         dispatch({
           type: "REMOVE_USER",
         });

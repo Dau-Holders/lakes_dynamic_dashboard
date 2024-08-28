@@ -6,6 +6,7 @@ import AppSideBar from "@/app/components/sidebar";
 import { useAuthContext } from "@/app/contexts/authContext";
 import useRefreshToken from "@/app/hooks/useRefreshToken";
 import { MetadataPayload } from "@/app/utils/types";
+import { AxiosError } from "axios";
 import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
@@ -45,14 +46,26 @@ export default function Page() {
         (metadata) => metadata.id !== value
       );
       setMetadataList(newMetadataList);
-    } catch (error) {
-      console.log("Error deleting toast", error);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error deleting metadata",
-        life: 3000,
-      });
+    } catch (error: AxiosError | any) {
+      if (error.response?.data.detail && toast.current) {
+        toast.current.show([
+          {
+            severity: "error",
+            detail: error.response?.data.detail,
+            sticky: true,
+            closable: false,
+          },
+        ]);
+      } else {
+        toast.current?.show([
+          {
+            severity: "error",
+            detail: "An unexpected error occurred. Please try again.",
+            sticky: true,
+            closable: false,
+          },
+        ]);
+      }
     } finally {
       setSingleMetadataLoading(false);
     }
