@@ -21,23 +21,6 @@ export default function ArticleList() {
     });
   }
 
-<<<<<<< HEAD
-=======
-  // function handleEditArticle(rowData: any) {
-  //   dispatch({
-  //     type: "SHOW_EDIT_ARTICLE_MODAL",
-  //     payload: rowData,
-  //   });
-  // }
-
-  // function handleDeleteArticle(rowData: any) {
-  //   dispatch({
-  //     type: "DELETE_ARTICLE",
-  //     payload: rowData.id,
-  //   });
-  // }
-
->>>>>>> origin/main
   const buttonsBodyTemplate = isAdmin
     ? iconsAdminBodyTemplate
     : iconsBodyTemplate;
