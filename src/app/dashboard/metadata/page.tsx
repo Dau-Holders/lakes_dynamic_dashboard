@@ -1,5 +1,5 @@
 "use client";
-import AddMetadataModal from "@/app/components/AddMetadataModal";
+import AddMetadataModal from "@/app/components/addMetadataModal";
 import AppMenuBar from "@/app/components/appMenuBar";
 import MetadataList from "@/app/components/metadataList";
 import AppSideBar from "@/app/components/sidebar";

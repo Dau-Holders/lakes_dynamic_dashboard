@@ -7,15 +7,23 @@ import Link from "next/link";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { Toast } from "primereact/toast";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "../contexts/authContext";
 
 export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
+  const { user } = useAuthContext();
+
+  const isAdmin = user?.designation === "admin";
 
   function showArticlesModal() {
     dispatch({
       type: "SHOW_ARTICLES_MODAL",
     });
   }
+
+  const buttonsBodyTemplate = isAdmin
+    ? iconsAdminBodyTemplate
+    : iconsBodyTemplate;
 
   return (
     <div className="bg-white p-6 rounded-lg m-4">
@@ -64,7 +72,7 @@ export default function ArticleList() {
           header="Approval Status"
           body={approvedBodyTemplate}
         />
-        <Column header="Actions" body={iconsBodyTemplate} />
+        <Column header="Actions" body={buttonsBodyTemplate} />
       </DataTable>
     </div>
   );
@@ -105,9 +113,10 @@ function yearBodyTemplate(rowData: any) {
 }
 
 function lakeBodyTemplate(rowData: any) {
+  const lakeList = rowData.lake;
   return (
     <div className="flex items-center space-x-2 ">
-      {rowData.lake.map((lake: string) => (
+      {lakeList.map((lake: string) => (
         <div className="flex items-center" key={lake}>
           <p className="text-gray-600 text-sm mt-1">{lake}</p>
         </div>
@@ -118,6 +127,7 @@ function lakeBodyTemplate(rowData: any) {
 
 function keywordsBodyTemplate(rowData: any) {
   const keyWordList = rowData.keywords.split(",");
+
   return (
     <div className="flex flex-col">
       {keyWordList.map((keyword: string) => (
@@ -215,8 +225,28 @@ function iconsBodyTemplate(rowData: any) {
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={deleteLoading}
+        disabled={deleteLoading || rowData.status === "approved"}
         onClick={() => handleDeleteArticle()}
+      />
+      <Link href={rowData.file} target="blank">
+        <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
+      </Link>
+    </div>
+  );
+}
+
+function iconsAdminBodyTemplate(rowData: any) {
+  return (
+    <div className="flex gap-2">
+      <Button
+        icon="pi pi-check"
+        className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
+        disabled={rowData.status !== "pending"}
+      />
+      <Button
+        icon="pi pi-times"
+        className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
+        disabled={rowData.status !== "pending"}
       />
       <Link href={rowData.file} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />

@@ -141,6 +141,16 @@ export default function Login() {
               )}
             </div>
           </div>
+          <div className="mt-2">
+            {/* <span className="text-gray-600 text-sm">
+              Don't have an account?{" "}
+            </span> */}
+            <Link href="/reset">
+              <span className="text-blue-600 text-sm hover:underline">
+                Reset Password
+              </span>
+            </Link>
+          </div>
           <div className="mt-4 w-full">
             <Button
               style={{ width: "100%" }}

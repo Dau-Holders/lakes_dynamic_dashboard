@@ -145,11 +145,11 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!user) return;
+    console.log("This ran");
     const fetchArticles = async () => {
       try {
         dispatch({ type: "SET_LOADING", loading: true });
-        const response = await privateApi.get("/publications/");
-        console.log(response.data);
+        const response = await privateApi.get("/publications/me/");
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,

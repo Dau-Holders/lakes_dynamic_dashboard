@@ -79,20 +79,20 @@ export default function AppSideBar() {
             router.push("/dashboard/profile");
           },
         },
-        {
-          label: "Security",
-          icon: "pi pi-cog",
-          command: () => {
-            router.push("/dashboard/security");
-          },
-        },
-        {
-          label: "Contact",
-          icon: "pi pi-envelope",
-          command: () => {
-            router.push("/dashboard/contact");
-          },
-        },
+        // {
+        //   label: "Security",
+        //   icon: "pi pi-cog",
+        //   command: () => {
+        //     router.push("/dashboard/security");
+        //   },
+        // },
+        // {
+        //   label: "Contact",
+        //   icon: "pi pi-envelope",
+        //   command: () => {
+        //     router.push("/dashboard/contact");
+        //   },
+        // },
       ],
     },
     {

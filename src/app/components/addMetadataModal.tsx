@@ -209,7 +209,7 @@ export default function AddMetadataModal({
       </div>
       <div className="mb-4">
         <label htmlFor="file" className="block font-medium mb-2">
-          Select Metadata File (PDF only)
+          Select Metadata File
         </label>
         <Controller
           control={control}
@@ -219,7 +219,7 @@ export default function AddMetadataModal({
             <FileUpload
               id="file"
               name="file"
-              accept=".pdf"
+              accept=".pdf, .xls, .xlsx"
               mode="basic"
               auto
               customUpload
