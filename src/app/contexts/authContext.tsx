@@ -89,10 +89,9 @@ function AuthContextProvider({ children }: AuthContextProviderProps) {
         });
 
         const response = await privateApi.get("/profile/me/");
-        const currentUser = response.data.profile;
         dispatch({
           type: "SET_USER",
-          payload: currentUser,
+          payload: response.data.profile,
         });
       } catch (error) {
         console.log(error);
@@ -108,7 +107,7 @@ function AuthContextProvider({ children }: AuthContextProviderProps) {
     }
 
     fetchUser();
-  }, [user]);
+  }, []);
 
   const value = {
     ...state,
