@@ -21,6 +21,20 @@ export default function ArticleList() {
     });
   }
 
+  // function handleEditArticle(rowData: any) {
+  //   dispatch({
+  //     type: "SHOW_EDIT_ARTICLE_MODAL",
+  //     payload: rowData,
+  //   });
+  // }
+
+  // function handleDeleteArticle(rowData: any) {
+  //   dispatch({
+  //     type: "DELETE_ARTICLE",
+  //     payload: rowData.id,
+  //   });
+  // }
+
   const buttonsBodyTemplate = isAdmin
     ? iconsAdminBodyTemplate
     : iconsBodyTemplate;
