@@ -26,6 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>Lakes Dashboard</title>
       <body className={poppins.className}>
         <AuthContextProvider>
           <ArticlesProvider>{children}</ArticlesProvider>
