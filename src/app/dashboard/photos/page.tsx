@@ -25,10 +25,10 @@ export default function Page() {
       if (!user) return;
       try {
         setLoading(true);
-        const response = await privateApi.get("/photos/");
+
+        const response = await privateApi.get("/photos/me/");
         setPhotoList(response.data);
       } catch (error) {
-        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -40,12 +40,10 @@ export default function Page() {
   async function updatePhotoList(value: string) {
     try {
       setSinglePhotoLoading(true);
-      const response = await privateApi.delete(`/photos/${value}`);
-      console.log(response.data);
+      await privateApi.delete(`/photos/${value}`);
       const newPhotoList = photoList.filter((photo) => photo.id !== value);
       setPhotoList(newPhotoList);
     } catch (error) {
-      console.log("Error deleting photo", error);
       toast.current?.show({
         severity: "error",
         summary: "Error",

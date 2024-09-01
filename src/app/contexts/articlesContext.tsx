@@ -184,7 +184,6 @@ const ArticlesProvider = ({ children }: { children: ReactNode }) => {
           error: null,
         });
       } catch (error) {
-        console.log(error);
         dispatch({
           type: "SET_ARTICLES_LOADING",
           loading: false,

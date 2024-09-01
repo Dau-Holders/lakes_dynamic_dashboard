@@ -26,7 +26,10 @@ export default function Page() {
       if (metadataList.length > 0) return;
       try {
         setLoading(true);
-        const response = await privateApi.get("/metadata/");
+
+        const isAdmin = user.designation === "admin";
+        const fetchURL = isAdmin ? "/metadata/unpublished/" : "/metadata/me/";
+        const response = await privateApi.get(fetchURL);
         setMetadataList(response.data);
       } catch (error) {
         console.log(error);
@@ -38,10 +41,16 @@ export default function Page() {
     fetchMetadata();
   }, [user]);
 
+  function removeFromMetadataList(value: string) {
+    const newMetadataList = metadataList.filter(
+      (metadata) => metadata.id !== value
+    );
+    setMetadataList(newMetadataList);
+  }
   async function updateMetadataList(value: string) {
     try {
       setSingleMetadataLoading(true);
-      const response = await privateApi.delete(`/metadata/${value}`);
+      await privateApi.delete(`/metadata/${value}/`);
       const newMetadataList = metadataList.filter(
         (metadata) => metadata.id !== value
       );
@@ -97,6 +106,7 @@ export default function Page() {
           loading={loading}
           singleMetadataLoading={singleMetadataLoading}
           updateMetadataList={updateMetadataList}
+          removeFromMetadataList={removeFromMetadataList}
           setShowMetadataModal={setShowMetadataModal}
         />
         <Dialog

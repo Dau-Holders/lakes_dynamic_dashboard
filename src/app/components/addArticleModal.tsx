@@ -13,6 +13,7 @@ import { useAuthContext } from "../contexts/authContext";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { Messages } from "primereact/messages";
 import { Article } from "../utils/types";
+import { Dropdown } from "primereact/dropdown";
 
 interface ArticleFormValues {
   title: string;
@@ -20,7 +21,7 @@ interface ArticleFormValues {
   abstract: string;
   publicationDate: Date;
   keywords: string;
-  selectedLakes: string[];
+  selectedLakes: string;
   file: File | null;
 }
 
@@ -62,7 +63,7 @@ export default function AddArticleModal() {
           abstract: "",
           publicationDate: new Date(),
           keywords: "",
-          selectedLakes: [],
+          selectedLakes: "",
           file: null,
         },
   });
@@ -109,14 +110,12 @@ export default function AddArticleModal() {
       setLoading(true);
       if (!user) return;
       const formData = new FormData();
-      const selectedLakes = data.selectedLakes.join(",");
-      console.log(selectedLakes);
       const authors = data.authors.map((author) => author.name).join(",");
       formData.append("title", data.title);
       formData.append("abstract", data.abstract);
       formData.append("publicationDate", data.publicationDate.toISOString());
       formData.append("keywords", data.keywords);
-      formData.append("lake", selectedLakes);
+      formData.append("lake", data.selectedLakes);
       formData.append("uploader", user.username);
       formData.append("author", authors);
 
@@ -142,7 +141,7 @@ export default function AddArticleModal() {
           abstract: data.abstract,
           year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
-          lake: data.selectedLakes,
+          lake: [data.selectedLakes],
           file: articleResponse.data?.file,
         };
 
@@ -167,7 +166,7 @@ export default function AddArticleModal() {
           abstract: data.abstract,
           year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
-          lake: data.selectedLakes,
+          lake: [data.selectedLakes],
           is_published: false,
           status: "pending",
           file: articleResponse.data?.file,
@@ -179,7 +178,6 @@ export default function AddArticleModal() {
         });
       }
     } catch (error) {
-      console.error("Error submitting article:", error);
       messages.current?.show([
         {
           severity: "info",
@@ -199,7 +197,7 @@ export default function AddArticleModal() {
   const greatLakes = [
     { label: "Lake Victoria", value: "Lake Victoria" },
     { label: "Lake Tanganyika", value: "Lake Tanganyika" },
-    { label: "Lake Malawi/Nissa/Nyasa", value: "Lake Malawi/Nissa/Nyasa" },
+    { label: "Lake Malawi/Niassa/Nyasa", value: "Lake Malawi/Niassa/Nyasa" },
     { label: "Lake Turkana", value: "Lake Turkana" },
     { label: "Lake Albert", value: "Lake Albert" },
     { label: "Lake Kivu", value: "Lake Kivu" },
@@ -313,13 +311,12 @@ export default function AddArticleModal() {
           name="selectedLakes"
           rules={{ required: "At least one lake must be selected" }}
           render={({ field }) => (
-            <MultiSelect
+            <Dropdown
               id="lakes"
               options={greatLakes}
               className="w-full p-multiselect-sm"
               value={field.value}
-              display="chip"
-              onChange={(e: MultiSelectChangeEvent) => field.onChange(e.value)}
+              onChange={(e) => field.onChange(e.value)}
             />
           )}
         />

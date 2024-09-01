@@ -13,8 +13,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Page() {
   const [showProjectModal, setShowProjectModal] = useState(false);
-  const [projectList, setProjectList] =
-    useState<ProjectPayload[]>(sampleProjects);
+  const [projectList, setProjectList] = useState<ProjectPayload[]>([]);
   const [loading, setLoading] = useState(false);
   const [singleProjectLoading, setSingleProjectLoading] = useState(false);
   const toast = useRef<Toast>(null);
@@ -27,7 +26,9 @@ export default function Page() {
       if (projectList.length > 0) return;
       try {
         setLoading(true);
-        const response = await privateApi.get("/projects/");
+        const isAdmin = user.designation === "admin";
+        const fetchURL = isAdmin ? "/projects/unpublished/" : "/projects/me/";
+        const response = await privateApi.get(fetchURL);
         setProjectList(response.data);
       } catch (error) {
         console.log(error);
@@ -39,16 +40,22 @@ export default function Page() {
     fetchProjects();
   }, [user]);
 
+  function removeFromProjectList(value: string) {
+    const newProjectList = projectList.filter(
+      (project) => project.id !== value
+    );
+    setProjectList(newProjectList);
+  }
+
   async function updateProjectList(value: string) {
     try {
       setSingleProjectLoading(true);
-      const response = await privateApi.delete(`/projects/${value}`);
+      await privateApi.delete(`/projects/${value}/`);
       const newProjectList = projectList.filter(
         (project) => project.id !== value
       );
       setProjectList(newProjectList);
     } catch (error) {
-      console.log("Error deleting project", error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
@@ -80,6 +87,7 @@ export default function Page() {
           loading={loading}
           singleProjectLoading={singleProjectLoading}
           updateProjectList={updateProjectList}
+          removeFromProjectList={removeFromProjectList}
           setShowProjectModal={setShowProjectModal}
         />
         <Dialog

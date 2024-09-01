@@ -6,12 +6,14 @@ import { Toast } from "primereact/toast";
 import Link from "next/link";
 import useRefreshToken from "../hooks/useRefreshToken";
 import { useRef, useState } from "react";
+import { useAuthContext } from "../contexts/authContext";
 
 interface MetadataListProps {
   loading: boolean;
   singleMetadataLoading: boolean;
   setShowMetadataModal: (value: boolean) => void;
   updateMetadataList: (value: string) => void;
+  removeFromMetadataList: (value: string) => void;
   metadataList: MetadataPayload[];
 }
 
@@ -20,8 +22,12 @@ export default function MetadataList({
   setShowMetadataModal,
   metadataList,
   updateMetadataList,
+  removeFromMetadataList,
   singleMetadataLoading,
 }: MetadataListProps) {
+  const { user } = useAuthContext();
+  const isAdmin = user?.designation === "admin";
+
   function showMetadataModal() {
     setShowMetadataModal(true);
   }
@@ -68,11 +74,17 @@ export default function MetadataList({
         <Column
           header="Actions"
           body={(rowData) =>
-            iconsBodyTemplate(
-              rowData,
-              updateMetadataList,
-              singleMetadataLoading
-            )
+            isAdmin
+              ? iconsAdminBodyTemplate(
+                  rowData,
+                  removeFromMetadataList,
+                  singleMetadataLoading
+                )
+              : iconsBodyTemplate(
+                  rowData,
+                  removeFromMetadataList,
+                  singleMetadataLoading
+                )
           }
         />
       </DataTable>
@@ -157,12 +169,105 @@ function iconsBodyTemplate(
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={loading}
+        disabled={loading || rowData.status !== "pending"}
         onClick={() => handleDelete()}
       />
       <Link href={rowData.file} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
       </Link>
+    </div>
+  );
+}
+
+function iconsAdminBodyTemplate(
+  rowData: any,
+  removeFromMetadataList: (value: string) => void,
+  loading: boolean
+) {
+  const privateApi = useRefreshToken();
+  const toast = useRef<Toast>(null);
+
+  async function handleApprove() {
+    const id = rowData.id;
+    try {
+      await privateApi.patch(`/metadata/unpublished/${id}/`, {
+        status: "approved",
+      });
+
+      removeFromMetadataList(id);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Metadata approved successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error approving metadata",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    }
+  }
+
+  async function handleReject() {
+    const id = rowData.id;
+    try {
+      await privateApi.patch(`/metadata/unpublished/${id}/`, {
+        status: "rejected",
+      });
+
+      removeFromMetadataList(id);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Metadata rejected successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error rejecting metadata",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    }
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Toast ref={toast} />
+
+      <Button
+        icon="pi pi-check"
+        className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleApprove}
+      />
+      <Button
+        icon="pi pi-times"
+        className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleReject}
+      />
+      {/* <Link href={rowData.file} target="blank"> */}
+      <Button icon="pi pi-download" className="w-10 h-10" disabled={loading} />
+      {/* </Link> */}
     </div>
   );
 }
