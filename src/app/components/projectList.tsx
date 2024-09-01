@@ -2,12 +2,18 @@ import { Button } from "primereact/button";
 import { ProjectPayload } from "../utils/types";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { useRef } from "react";
+import { Toast } from "primereact/toast";
+import useRefreshToken from "../hooks/useRefreshToken";
+import Link from "next/link";
+import { useAuthContext } from "../contexts/authContext";
 
 interface ProjectListProps {
   loading: boolean;
   singleProjectLoading: boolean;
   setShowProjectModal: (value: boolean) => void;
   updateProjectList: (value: string) => void;
+  removeFromProjectList: (value: string) => void;
   projectList: ProjectPayload[];
 }
 
@@ -16,8 +22,13 @@ export default function ProjectList({
   setShowProjectModal,
   projectList,
   updateProjectList,
+  removeFromProjectList,
   singleProjectLoading,
 }: ProjectListProps) {
+  const { user } = useAuthContext();
+  const isAdmin = user?.designation === "admin";
+  const toast = useRef<Toast>(null);
+
   function showProjectModal() {
     setShowProjectModal(true);
   }
@@ -60,11 +71,17 @@ export default function ProjectList({
         <Column
           header="Actions"
           body={(rowData) =>
-            actionsBodyTemplate(
-              rowData,
-              updateProjectList,
-              singleProjectLoading
-            )
+            isAdmin
+              ? actionsAdminBodyTemplate(
+                  rowData,
+                  removeFromProjectList,
+                  singleProjectLoading
+                )
+              : actionsBodyTemplate(
+                  rowData,
+                  updateProjectList,
+                  singleProjectLoading
+                )
           }
         />
       </DataTable>
@@ -99,7 +116,7 @@ function descriptionBodyTemplate(rowData: any) {
 
 function lakeBodyTemplate(rowData: any) {
   return (
-    <div className="flex items-center space-x-2 ">
+    <div className="flex items-center space-x-2">
       <div className="flex items-center" key={rowData.lake}>
         <p className="text-gray-600 text-sm mt-1">{rowData.lake}</p>
       </div>
@@ -153,8 +170,97 @@ function actionsBodyTemplate(
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={loading}
+        disabled={loading || rowData.status !== "pending"}
         onClick={() => handleDelete()}
+      />
+    </div>
+  );
+}
+
+function actionsAdminBodyTemplate(
+  rowData: any,
+  removeFromProjectList: (value: string) => void,
+  loading: boolean
+) {
+  const privateApi = useRefreshToken();
+  const toast = useRef<Toast>(null);
+
+  async function handleApprove() {
+    const id = rowData.id;
+    try {
+      await privateApi.patch(`/projects/unpublished/${id}/`, {
+        status: "approved",
+      });
+
+      removeFromProjectList(id);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Project approved successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error approving project",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    }
+  }
+
+  async function handleReject() {
+    const id = rowData.id;
+    try {
+      await privateApi.patch(`/projects/unpublished/${id}/`, {
+        status: "rejected",
+      });
+
+      removeFromProjectList(id);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Project rejected successfully",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error rejecting project",
+      });
+
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    }
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Toast ref={toast} />
+      <Button
+        icon="pi pi-check"
+        className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleApprove}
+      />
+      <Button
+        icon="pi pi-times"
+        className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
+        disabled={rowData.status !== "pending" || loading}
+        onClick={handleReject}
       />
     </div>
   );

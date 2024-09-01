@@ -87,8 +87,6 @@ function titleBodyTemplate(rowData: any) {
   const router = useRouter();
 
   function handleClick() {
-    console.log("Title Clicked");
-
     const testId = "1256871i2mklp";
     router.push(`/articles/${testId}`);
   }
@@ -199,7 +197,6 @@ function iconsBodyTemplate(rowData: any) {
         type: "DELETE_ARTICLE",
         id,
       });
-      console.log(response);
     } catch (err) {
       toast.current?.show({
         severity: "error",
@@ -209,7 +206,6 @@ function iconsBodyTemplate(rowData: any) {
       setTimeout(() => {
         toast.current?.clear();
       }, 5000);
-      console.log(err);
     } finally {
       setDeleteLoading(false);
     }
@@ -276,8 +272,6 @@ function iconsAdminBodyTemplate(rowData: any) {
       setTimeout(() => {
         toast.current?.clear();
       }, 5000);
-
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -315,8 +309,6 @@ function iconsAdminBodyTemplate(rowData: any) {
       setTimeout(() => {
         toast.current?.clear();
       }, 5000);
-
-      console.error(err);
     } finally {
       setLoading(false);
     }

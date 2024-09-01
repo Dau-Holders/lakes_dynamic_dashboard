@@ -84,7 +84,6 @@ export default function AddProjectModal({
       addProject(newProjectItem);
       setShowProjectModal(false);
     } catch (error) {
-      console.error("Error submitting project:", error);
       messages.current?.show([
         {
           severity: "error",
@@ -101,7 +100,7 @@ export default function AddProjectModal({
   const greatLakes = [
     { label: "Lake Victoria", value: "Lake Victoria" },
     { label: "Lake Tanganyika", value: "Lake Tanganyika" },
-    { label: "Lake Malawi/Nissa/Nyasa", value: "Lake Malawi/Nissa/Nyasa" },
+    { label: "Lake Malawi/Niassa/Nyasa", value: "Lake Malawi/Niassa/Nyasa" },
     { label: "Lake Turkana", value: "Lake Turkana" },
     { label: "Lake Albert", value: "Lake Albert" },
     { label: "Lake Kivu", value: "Lake Kivu" },

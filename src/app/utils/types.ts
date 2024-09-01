@@ -5,7 +5,7 @@ export interface Article {
   abstract: string;
   year: string;
   keywords: string;
-  lake: string[];
+  lake: any;
   is_published: boolean;
   status: "pending" | "approved" | "rejected";
   file: string;
