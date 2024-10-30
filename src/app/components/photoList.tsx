@@ -69,13 +69,12 @@ export default function PhotoList({
               placeholder="Search photos..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = projectList.filter(project => 
-                  project.title.toLowerCase().includes(filtered) ||
-                  project.description.toLowerCase().includes(filtered) ||
-                  project.lake.toLowerCase().includes(filtered) ||
-                  project.status.toLowerCase().includes(filtered)
+                const filteredData = photoList.filter(photo => 
+                  photo.description.toLowerCase().includes(filtered) ||
+                  photo.lake.toLowerCase().includes(filtered) ||
+                  photo.uploader.toLowerCase().includes(filtered)
                 );
-                setFilteredProjects(filteredData);
+                setFilteredPhotos(filteredData);
               }}
             />
           </div>
