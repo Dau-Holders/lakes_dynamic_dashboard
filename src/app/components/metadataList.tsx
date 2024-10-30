@@ -49,7 +49,7 @@ export default function MetadataList({
         />
       </div>
       <DataTable
-        value={metadataList}
+        value={filteredMetadata}
         paginator
         rows={6}
         dataKey="id"

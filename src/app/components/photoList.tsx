@@ -42,7 +42,7 @@ export default function PhotoList({
         />
       </div>
       <DataTable
-        value={photoList}
+        value={filteredPhotos}
         paginator
         rows={6}
         dataKey="id"

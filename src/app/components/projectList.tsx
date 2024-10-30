@@ -50,7 +50,7 @@ export default function ProjectList({
         />
       </div>
       <DataTable
-        value={projectList}
+        value={filteredProjects}
         paginator
         rows={6}
         dataKey="id"

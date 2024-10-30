@@ -42,7 +42,7 @@ export default function ArticleList() {
         />
       </div>
       <DataTable
-        value={articles}
+        value={filteredArticles}
         paginator
         rows={6}
         dataKey="id"
