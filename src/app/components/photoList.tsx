@@ -68,13 +68,14 @@ export default function PhotoList({
             <SearchInput
               placeholder="Search photos..."
               onSearch={(value) => {
-                const table = document.querySelector('.p-datatable-table');
-                if (table) {
-                  const dt = (table as any).closest('.p-datatable');
-                  if (dt) {
-                    dt.api.setGlobalFilter(value);
-                  }
-                }
+                const filtered = value.toLowerCase();
+                const filteredData = projectList.filter(project => 
+                  project.title.toLowerCase().includes(filtered) ||
+                  project.description.toLowerCase().includes(filtered) ||
+                  project.lake.toLowerCase().includes(filtered) ||
+                  project.status.toLowerCase().includes(filtered)
+                );
+                setFilteredProjects(filteredData);
               }}
             />
           </div>

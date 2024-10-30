@@ -76,13 +76,14 @@ export default function ProjectList({
             <SearchInput
               placeholder="Search projects..."
               onSearch={(value) => {
-                const table = document.querySelector('.p-datatable-table');
-                if (table) {
-                  const dt = (table as any).closest('.p-datatable');
-                  if (dt) {
-                    dt.api.setGlobalFilter(value);
-                  }
-                }
+                const filtered = value.toLowerCase();
+                const filteredData = metadataList.filter(metadata => 
+                  metadata.title.toLowerCase().includes(filtered) ||
+                  metadata.description.toLowerCase().includes(filtered) ||
+                  metadata.lake.toLowerCase().includes(filtered) ||
+                  metadata.status.toLowerCase().includes(filtered)
+                );
+                setFilteredMetadata(filteredData);
               }}
             />
           </div>
