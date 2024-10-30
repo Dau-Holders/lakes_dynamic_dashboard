@@ -13,9 +13,16 @@ import { useAuthContext } from "../contexts/authContext";
 
 export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredArticles, setFilteredArticles] = useState<typeof articles>(articles);
+  const [selectedLake, setSelectedLake] = useState<string>("");
+  const [lakes] = useState([
+    "Victoria",
+    "Tanganyika",
+    "Malawi",
+    "Turkana",
+    "Albert",
+  ]);
+  const [filteredArticles, setFilteredArticles] =
+    useState<typeof articles>(articles);
   const { user } = useAuthContext();
 
   const isAdmin = user?.designation === "admin";
@@ -49,7 +56,7 @@ export default function ArticleList() {
         loading={loading}
         emptyMessage="No publications found"
         filterDisplay="menu"
-        globalFilterFields={['title', 'year', 'keywords', 'lake', 'status']}
+        globalFilterFields={["title", "year", "keywords", "lake", "status"]}
         header={
           <div className="flex justify-between items-center">
             <Dropdown
@@ -57,9 +64,9 @@ export default function ArticleList() {
               options={lakes}
               onChange={(e) => {
                 setSelectedLake(e.value);
-                const filtered = e.value ? 
-                  articles.filter(article => article.lake.includes(e.value)) : 
-                  articles;
+                const filtered = e.value
+                  ? articles.filter((article) => article.lake.includes(e.value))
+                  : articles;
                 setFilteredArticles(filtered);
               }}
               placeholder="Filter by Lake"
@@ -68,9 +75,9 @@ export default function ArticleList() {
             <SearchInput
               placeholder="Search publications..."
               onSearch={(value) => {
-                const table = document.querySelector('.p-datatable-table');
+                const table = document.querySelector(".p-datatable-table");
                 if (table) {
-                  const dt = (table as any).closest('.p-datatable');
+                  const dt = (table as any).closest(".p-datatable");
                   if (dt) {
                     dt.api.setGlobalFilter(value);
                   }
@@ -163,7 +170,6 @@ function lakeBodyTemplate(rowData: any) {
 
 function keywordsBodyTemplate(rowData: any) {
   const keyWordList = rowData.keywords?.split(",");
-  console.log(keyWordList);
 
   if (!keyWordList && keyWordList?.length > 0) {
     return (
