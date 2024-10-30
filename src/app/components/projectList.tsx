@@ -2,7 +2,9 @@ import { Button } from "primereact/button";
 import { ProjectPayload } from "../utils/types";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import SearchInput from "./SearchInput";
+import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import useRefreshToken from "../hooks/useRefreshToken";
 import Link from "next/link";
@@ -18,6 +20,9 @@ interface ProjectListProps {
 }
 
 export default function ProjectList({
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredProjects, setFilteredProjects] = useState(projectList);
   loading,
   setShowProjectModal,
   projectList,
@@ -54,23 +59,32 @@ export default function ProjectList({
         filterDisplay="menu"
         globalFilterFields={['title', 'description', 'lake', 'latitude', 'longitude', 'status']}
         header={
-          <div className="flex justify-end">
-            <span className="p-input-icon-left">
-              <i className="pi pi-search" />
-              <input 
-                className="p-inputtext p-component" 
-                placeholder="Search projects..." 
-                onInput={(e) => {
-                  const table = document.querySelector('.p-datatable-table');
-                  if (table) {
-                    const dt = (table as any).closest('.p-datatable');
-                    if (dt) {
-                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
-                    }
+          <div className="flex justify-between items-center">
+            <Dropdown
+              value={selectedLake}
+              options={lakes}
+              onChange={(e) => {
+                setSelectedLake(e.value);
+                const filtered = e.value ? 
+                  projectList.filter(project => project.lake === e.value) : 
+                  projectList;
+                setFilteredProjects(filtered);
+              }}
+              placeholder="Filter by Lake"
+              className="w-[200px]"
+            />
+            <SearchInput
+              placeholder="Search projects..."
+              onSearch={(value) => {
+                const table = document.querySelector('.p-datatable-table');
+                if (table) {
+                  const dt = (table as any).closest('.p-datatable');
+                  if (dt) {
+                    dt.api.setGlobalFilter(value);
                   }
-                }}
-              />
-            </span>
+                }
+              }}
+            />
           </div>
         }
       >

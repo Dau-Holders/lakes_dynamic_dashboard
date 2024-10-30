@@ -4,6 +4,9 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Image } from "primereact/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import SearchInput from "./SearchInput";
+import { Dropdown } from "primereact/dropdown";
 
 interface PhotoListProps {
   loading: boolean;
@@ -14,6 +17,9 @@ interface PhotoListProps {
 }
 
 export default function PhotoList({
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredPhotos, setFilteredPhotos] = useState(photoList);
   loading,
   setShowPhotoModal,
   photoList,
@@ -45,23 +51,32 @@ export default function PhotoList({
         filterDisplay="menu"
         globalFilterFields={['description', 'lake', 'capture_date', 'uploader']}
         header={
-          <div className="flex justify-end">
-            <span className="p-input-icon-left">
-              <i className="pi pi-search" />
-              <input 
-                className="p-inputtext p-component" 
-                placeholder="Search photos..." 
-                onInput={(e) => {
-                  const table = document.querySelector('.p-datatable-table');
-                  if (table) {
-                    const dt = (table as any).closest('.p-datatable');
-                    if (dt) {
-                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
-                    }
+          <div className="flex justify-between items-center">
+            <Dropdown
+              value={selectedLake}
+              options={lakes}
+              onChange={(e) => {
+                setSelectedLake(e.value);
+                const filtered = e.value ? 
+                  photoList.filter(photo => photo.lake === e.value) : 
+                  photoList;
+                setFilteredPhotos(filtered);
+              }}
+              placeholder="Filter by Lake"
+              className="w-[200px]"
+            />
+            <SearchInput
+              placeholder="Search photos..."
+              onSearch={(value) => {
+                const table = document.querySelector('.p-datatable-table');
+                if (table) {
+                  const dt = (table as any).closest('.p-datatable');
+                  if (dt) {
+                    dt.api.setGlobalFilter(value);
                   }
-                }}
-              />
-            </span>
+                }
+              }}
+            />
           </div>
         }
       >

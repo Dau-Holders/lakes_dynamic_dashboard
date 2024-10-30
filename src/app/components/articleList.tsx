@@ -1,4 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import SearchInput from "./SearchInput";
+import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -10,6 +12,9 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "../contexts/authContext";
 
 export default function ArticleList() {
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredArticles, setFilteredArticles] = useState(articles);
   const { articles, loading, dispatch } = useArticles();
   const { user } = useAuthContext();
 
@@ -46,23 +51,32 @@ export default function ArticleList() {
         filterDisplay="menu"
         globalFilterFields={['title', 'year', 'keywords', 'lake', 'status']}
         header={
-          <div className="flex justify-end">
-            <span className="p-input-icon-left">
-              <i className="pi pi-search" />
-              <input 
-                className="p-inputtext p-component" 
-                placeholder="Search publications..." 
-                onInput={(e) => {
-                  const table = document.querySelector('.p-datatable-table');
-                  if (table) {
-                    const dt = (table as any).closest('.p-datatable');
-                    if (dt) {
-                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
-                    }
+          <div className="flex justify-between items-center">
+            <Dropdown
+              value={selectedLake}
+              options={lakes}
+              onChange={(e) => {
+                setSelectedLake(e.value);
+                const filtered = e.value ? 
+                  articles.filter(article => article.lake.includes(e.value)) : 
+                  articles;
+                setFilteredArticles(filtered);
+              }}
+              placeholder="Filter by Lake"
+              className="w-[200px]"
+            />
+            <SearchInput
+              placeholder="Search publications..."
+              onSearch={(value) => {
+                const table = document.querySelector('.p-datatable-table');
+                if (table) {
+                  const dt = (table as any).closest('.p-datatable');
+                  if (dt) {
+                    dt.api.setGlobalFilter(value);
                   }
-                }}
-              />
-            </span>
+                }
+              }}
+            />
           </div>
         }
       >

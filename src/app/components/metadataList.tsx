@@ -5,7 +5,9 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import Link from "next/link";
 import useRefreshToken from "../hooks/useRefreshToken";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import SearchInput from "./SearchInput";
+import { Dropdown } from "primereact/dropdown";
 import { useAuthContext } from "../contexts/authContext";
 
 interface MetadataListProps {
@@ -18,6 +20,9 @@ interface MetadataListProps {
 }
 
 export default function MetadataList({
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredMetadata, setFilteredMetadata] = useState(metadataList);
   loading,
   setShowMetadataModal,
   metadataList,
@@ -53,23 +58,32 @@ export default function MetadataList({
         filterDisplay="menu"
         globalFilterFields={['title', 'period', 'lake', 'status']}
         header={
-          <div className="flex justify-end">
-            <span className="p-input-icon-left">
-              <i className="pi pi-search" />
-              <input 
-                className="p-inputtext p-component" 
-                placeholder="Search metadata..." 
-                onInput={(e) => {
-                  const table = document.querySelector('.p-datatable-table');
-                  if (table) {
-                    const dt = (table as any).closest('.p-datatable');
-                    if (dt) {
-                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
-                    }
+          <div className="flex justify-between items-center">
+            <Dropdown
+              value={selectedLake}
+              options={lakes}
+              onChange={(e) => {
+                setSelectedLake(e.value);
+                const filtered = e.value ? 
+                  metadataList.filter(metadata => metadata.lake === e.value) : 
+                  metadataList;
+                setFilteredMetadata(filtered);
+              }}
+              placeholder="Filter by Lake"
+              className="w-[200px]"
+            />
+            <SearchInput
+              placeholder="Search metadata..."
+              onSearch={(value) => {
+                const table = document.querySelector('.p-datatable-table');
+                if (table) {
+                  const dt = (table as any).closest('.p-datatable');
+                  if (dt) {
+                    dt.api.setGlobalFilter(value);
                   }
-                }}
-              />
-            </span>
+                }
+              }}
+            />
           </div>
         }
       >
