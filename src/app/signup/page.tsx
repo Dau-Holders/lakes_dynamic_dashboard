@@ -40,17 +40,16 @@ export default function Page() {
     setLoading(true);
     try {
       const response = await api.post("/auth/users/", data);
-      console.log(response.data);
       reset();
-      // messages.current?.show([
-      //   {
-      //     severity: "info",
-      //     detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
-      //     sticky: true,
-      //     closable: false,
-      //   },
-      // ]);
-      // setTimeout(() => messages.current?.clear(), 10000);
+      messages.current?.show([
+        {
+          severity: "success",
+          detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
+          sticky: false,
+          life: 5000,
+          closable: true,
+        },
+      ]);
     } catch (error: AxiosError | any) {
       if (error.response?.data) {
         const serverErrors = error.response.data;
@@ -63,6 +62,27 @@ export default function Page() {
             });
           });
         });
+        // Show general error message
+        messages.current?.show([
+          {
+            severity: "error",
+            detail: "Registration failed. Please check the form for errors.",
+            sticky: false,
+            life: 5000,
+            closable: true,
+          },
+        ]);
+      } else {
+        // Show network/server error
+        messages.current?.show([
+          {
+            severity: "error",
+            detail: "Network error. Please try again later.",
+            sticky: false,
+            life: 5000,
+            closable: true,
+          },
+        ]);
       }
     } finally {
       setLoading(false);
