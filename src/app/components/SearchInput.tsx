@@ -5,10 +5,12 @@ interface SearchInputProps {
   onSearch: (value: string) => void;
 }
 
-export default function SearchInput({ placeholder, onSearch }: SearchInputProps) {
+export default function SearchInput({
+  placeholder,
+  onSearch,
+}: SearchInputProps) {
   return (
     <span className="p-input-icon-left p-2">
-      <i className="pi pi-search" />
       <InputText
         className="p-inputtext p-component"
         placeholder={placeholder}
