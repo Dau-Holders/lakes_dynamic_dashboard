@@ -124,23 +124,27 @@ function lakeBodyTemplate(rowData: any) {
 }
 
 function keywordsBodyTemplate(rowData: any) {
-  const keyWordList = rowData.keywords.split(",");
+  const keyWordList = rowData.keywords?.split(",");
+  console.log(keyWordList);
 
-  return (
-    <div className="flex flex-col">
-      {keyWordList.map((keyword: string) => (
-        <div
-          className="flex items-center space-x-2 text-gray-700 text-sm mb-1"
-          key={keyword}
-        >
-          <i className="pi pi-tags text-xs text-green-600 mr-1" />
-          <p className="text-gray-600 text-sm mt-1" key={keyword}>
-            {keyword}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
+  if (!keyWordList && keyWordList?.length > 0) {
+    return (
+      <div className="flex flex-col">
+        {keyWordList.map((keyword: string) => (
+          <div
+            className="flex items-center space-x-2 text-gray-700 text-sm mb-1"
+            key={keyword}
+          >
+            <i className="pi pi-tags text-xs text-green-600 mr-1" />
+            <p className="text-gray-600 text-sm mt-1" key={keyword}>
+              {keyword}
+            </p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
 }
 
 function approvedBodyTemplate(rowData: any) {
@@ -227,7 +231,7 @@ function iconsBodyTemplate(rowData: any) {
         disabled={deleteLoading || rowData.status === "approved"}
         onClick={() => handleDeleteArticle()}
       />
-      <Link href={rowData.file} target="blank">
+      <Link href={rowData?.file ?? ""} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
       </Link>
     </div>
