@@ -69,11 +69,11 @@ export default function PhotoList({
               placeholder="Search photos..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = photoList.filter(photo => 
+                const filteredData = value ? photoList.filter(photo => 
                   photo.description.toLowerCase().includes(filtered) ||
                   photo.lake.toLowerCase().includes(filtered) ||
                   photo.uploader.toLowerCase().includes(filtered)
-                );
+                ) : photoList;
                 setFilteredPhotos(filteredData);
               }}
             />

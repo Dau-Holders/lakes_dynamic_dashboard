@@ -75,13 +75,14 @@ export default function ArticleList() {
             <SearchInput
               placeholder="Search publications..."
               onSearch={(value) => {
-                const table = document.querySelector(".p-datatable-table");
-                if (table) {
-                  const dt = (table as any).closest(".p-datatable");
-                  if (dt) {
-                    dt.api.setGlobalFilter(value);
-                  }
-                }
+                const filtered = value.toLowerCase();
+                const filteredData = value ? articles.filter(article => 
+                  article.title.toLowerCase().includes(filtered) ||
+                  article.keywords?.toLowerCase().includes(filtered) ||
+                  article.lake.some(lake => lake.toLowerCase().includes(filtered)) ||
+                  article.status.toLowerCase().includes(filtered)
+                ) : articles;
+                setFilteredArticles(filteredData);
               }}
             />
           </div>

@@ -76,13 +76,13 @@ export default function MetadataList({
               placeholder="Search metadata..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = articles.filter(article => 
-                  article.title.toLowerCase().includes(filtered) ||
-                  article.keywords?.toLowerCase().includes(filtered) ||
-                  article.lake.some(lake => lake.toLowerCase().includes(filtered)) ||
-                  article.status.toLowerCase().includes(filtered)
-                );
-                setFilteredArticles(filteredData);
+                const filteredData = value ? metadataList.filter(metadata => 
+                  metadata.title.toLowerCase().includes(filtered) ||
+                  metadata.description.toLowerCase().includes(filtered) ||
+                  metadata.lake.toLowerCase().includes(filtered) ||
+                  metadata.status.toLowerCase().includes(filtered)
+                ) : metadataList;
+                setFilteredMetadata(filteredData);
               }}
             />
           </div>

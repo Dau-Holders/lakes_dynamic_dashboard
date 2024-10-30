@@ -77,13 +77,13 @@ export default function ProjectList({
               placeholder="Search projects..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = metadataList.filter(metadata => 
-                  metadata.title.toLowerCase().includes(filtered) ||
-                  metadata.description.toLowerCase().includes(filtered) ||
-                  metadata.lake.toLowerCase().includes(filtered) ||
-                  metadata.status.toLowerCase().includes(filtered)
-                );
-                setFilteredMetadata(filteredData);
+                const filteredData = value ? projectList.filter(project => 
+                  project.title.toLowerCase().includes(filtered) ||
+                  project.description.toLowerCase().includes(filtered) ||
+                  project.lake.toLowerCase().includes(filtered) ||
+                  project.status.toLowerCase().includes(filtered)
+                ) : projectList;
+                setFilteredProjects(filteredData);
               }}
             />
           </div>
