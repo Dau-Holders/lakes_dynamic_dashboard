@@ -20,9 +20,6 @@ interface MetadataListProps {
 }
 
 export default function MetadataList({
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredMetadata, setFilteredMetadata] = useState(metadataList);
   loading,
   setShowMetadataModal,
   metadataList,
@@ -30,6 +27,9 @@ export default function MetadataList({
   removeFromMetadataList,
   singleMetadataLoading,
 }: MetadataListProps) {
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredMetadata, setFilteredMetadata] = useState(metadataList);
   const { user } = useAuthContext();
   const isAdmin = user?.designation === "admin";
 

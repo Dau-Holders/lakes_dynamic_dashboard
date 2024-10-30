@@ -20,9 +20,6 @@ interface ProjectListProps {
 }
 
 export default function ProjectList({
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredProjects, setFilteredProjects] = useState(projectList);
   loading,
   setShowProjectModal,
   projectList,
@@ -30,6 +27,9 @@ export default function ProjectList({
   removeFromProjectList,
   singleProjectLoading,
 }: ProjectListProps) {
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredProjects, setFilteredProjects] = useState(projectList);
   const { user } = useAuthContext();
   const isAdmin = user?.designation === "admin";
   const toast = useRef<Toast>(null);

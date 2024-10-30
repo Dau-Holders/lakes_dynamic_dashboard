@@ -17,15 +17,15 @@ interface PhotoListProps {
 }
 
 export default function PhotoList({
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredPhotos, setFilteredPhotos] = useState(photoList);
   loading,
   setShowPhotoModal,
   photoList,
   updatePhotoList,
   singlePhotoLoading,
 }: PhotoListProps) {
+  const [selectedLake, setSelectedLake] = useState<string>('');
+  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [filteredPhotos, setFilteredPhotos] = useState(photoList);
   function showPhotoModal() {
     setShowPhotoModal(true);
   }
