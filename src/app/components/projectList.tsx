@@ -51,6 +51,28 @@ export default function ProjectList({
         dataKey="id"
         loading={loading}
         emptyMessage="No projects found"
+        filterDisplay="menu"
+        globalFilterFields={['title', 'description', 'lake', 'latitude', 'longitude', 'status']}
+        header={
+          <div className="flex justify-end">
+            <span className="p-input-icon-left">
+              <i className="pi pi-search" />
+              <input 
+                className="p-inputtext p-component" 
+                placeholder="Search projects..." 
+                onInput={(e) => {
+                  const table = document.querySelector('.p-datatable-table');
+                  if (table) {
+                    const dt = (table as any).closest('.p-datatable');
+                    if (dt) {
+                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
+                    }
+                  }
+                }}
+              />
+            </span>
+          </div>
+        }
       >
         <Column
           field="title"
@@ -63,6 +85,8 @@ export default function ProjectList({
           field="description"
           header="Description"
           body={descriptionBodyTemplate}
+          filter
+          filterPlaceholder="Search by description"
         />
         <Column field="lake" header="Lake" body={lakeBodyTemplate} />
         <Column field="latitude" header="Latitude" />

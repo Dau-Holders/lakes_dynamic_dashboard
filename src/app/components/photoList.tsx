@@ -42,12 +42,36 @@ export default function PhotoList({
         dataKey="id"
         loading={loading}
         emptyMessage="No photos found"
+        filterDisplay="menu"
+        globalFilterFields={['description', 'lake', 'capture_date', 'uploader']}
+        header={
+          <div className="flex justify-end">
+            <span className="p-input-icon-left">
+              <i className="pi pi-search" />
+              <input 
+                className="p-inputtext p-component" 
+                placeholder="Search photos..." 
+                onInput={(e) => {
+                  const table = document.querySelector('.p-datatable-table');
+                  if (table) {
+                    const dt = (table as any).closest('.p-datatable');
+                    if (dt) {
+                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
+                    }
+                  }
+                }}
+              />
+            </span>
+          </div>
+        }
       >
         <Column field="image" header="Image" body={imageBodyTemplate} />
         <Column
           field="description"
           header="Description"
           body={descriptionBodyTemplate}
+          filter
+          filterPlaceholder="Search by description"
         />
         <Column field="lake" header="Lake" body={lakeBodyTemplate} />
         <Column

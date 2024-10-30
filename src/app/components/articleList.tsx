@@ -43,6 +43,28 @@ export default function ArticleList() {
         dataKey="id"
         loading={loading}
         emptyMessage="No publications found"
+        filterDisplay="menu"
+        globalFilterFields={['title', 'year', 'keywords', 'lake', 'status']}
+        header={
+          <div className="flex justify-end">
+            <span className="p-input-icon-left">
+              <i className="pi pi-search" />
+              <input 
+                className="p-inputtext p-component" 
+                placeholder="Search publications..." 
+                onInput={(e) => {
+                  const table = document.querySelector('.p-datatable-table');
+                  if (table) {
+                    const dt = (table as any).closest('.p-datatable');
+                    if (dt) {
+                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
+                    }
+                  }
+                }}
+              />
+            </span>
+          </div>
+        }
       >
         <Column
           field="title"
@@ -56,6 +78,8 @@ export default function ArticleList() {
           field="publicationDate"
           header="Published"
           body={yearBodyTemplate}
+          filter
+          filterPlaceholder="Search by year"
         />
         <Column
           field="keywords"

@@ -48,9 +48,30 @@ export default function MetadataList({
         paginator
         rows={6}
         dataKey="id"
-        style={{ backgroundColor: "red" }}
         loading={loading}
         emptyMessage="No metadata found"
+        filterDisplay="menu"
+        globalFilterFields={['title', 'period', 'lake', 'status']}
+        header={
+          <div className="flex justify-end">
+            <span className="p-input-icon-left">
+              <i className="pi pi-search" />
+              <input 
+                className="p-inputtext p-component" 
+                placeholder="Search metadata..." 
+                onInput={(e) => {
+                  const table = document.querySelector('.p-datatable-table');
+                  if (table) {
+                    const dt = (table as any).closest('.p-datatable');
+                    if (dt) {
+                      dt.api.setGlobalFilter((e.target as HTMLInputElement).value);
+                    }
+                  }
+                }}
+              />
+            </span>
+          </div>
+        }
       >
         <Column
           field="title"
@@ -64,6 +85,8 @@ export default function MetadataList({
           field="period"
           header="Collection Period"
           body={collectionPeriodBodyTemplate}
+          filter
+          filterPlaceholder="Search by period"
         />
         <Column field="lake" header="Selected Lakes" body={lakeBodyTemplate} />
         <Column
