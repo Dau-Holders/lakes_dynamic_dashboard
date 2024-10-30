@@ -12,10 +12,10 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "../contexts/authContext";
 
 export default function ArticleList() {
+  const { articles, loading, dispatch } = useArticles();
   const [selectedLake, setSelectedLake] = useState<string>('');
   const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredArticles, setFilteredArticles] = useState(articles);
-  const { articles, loading, dispatch } = useArticles();
+  const [filteredArticles, setFilteredArticles] = useState<typeof articles>(articles);
   const { user } = useAuthContext();
 
   const isAdmin = user?.designation === "admin";
