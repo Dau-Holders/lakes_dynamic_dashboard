@@ -27,9 +27,19 @@ export default function MetadataList({
   removeFromMetadataList,
   singleMetadataLoading,
 }: MetadataListProps) {
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredMetadata, setFilteredMetadata] = useState<typeof metadataList>([]);
+  const [selectedLake, setSelectedLake] = useState<string>("");
+  const [lakes] = useState([
+    "Lake Victoria",
+    "Lake Tanganyika",
+    "Lake Turkana",
+    "Lake Albert",
+    "Lake Kivu",
+    "Lake Malawi",
+    "Lake Edward",
+  ]);
+  const [filteredMetadata, setFilteredMetadata] = useState<typeof metadataList>(
+    []
+  );
 
   useEffect(() => {
     setFilteredMetadata(metadataList);
@@ -60,21 +70,23 @@ export default function MetadataList({
         loading={loading}
         emptyMessage="No metadata found"
         filterDisplay="menu"
-        globalFilterFields={['title', 'period', 'lake', 'status']}
+        globalFilterFields={["title", "period", "lake", "status"]}
         header={
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <div>
               <Dropdown
                 value={selectedLake}
                 options={lakes}
                 onChange={(e) => {
                   setSelectedLake(e.value);
-                  const filtered = e.value ? 
-                    metadataList.filter(metadata => metadata.lake === e.value) : 
-                    metadataList;
+                  const filtered = e.value
+                    ? metadataList.filter(
+                        (metadata) => metadata.lake === e.value
+                      )
+                    : metadataList;
                   setFilteredMetadata(filtered);
                 }}
-                placeholder="Filter by Lake" 
+                placeholder="Filter by Lake"
                 className="w-[200px] mr-2"
               />
               <Button
@@ -91,12 +103,15 @@ export default function MetadataList({
               placeholder="Search metadata..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = value ? metadataList.filter(metadata => 
-                  metadata.title.toLowerCase().includes(filtered) ||
-                  metadata.description.toLowerCase().includes(filtered) ||
-                  metadata.lake.toLowerCase().includes(filtered) ||
-                  metadata.status.toLowerCase().includes(filtered)
-                ) : metadataList;
+                const filteredData = value
+                  ? metadataList.filter(
+                      (metadata) =>
+                        metadata.title.toLowerCase().includes(filtered) ||
+                        metadata.description.toLowerCase().includes(filtered) ||
+                        metadata.lake.toLowerCase().includes(filtered) ||
+                        metadata.status.toLowerCase().includes(filtered)
+                    )
+                  : metadataList;
                 setFilteredMetadata(filteredData);
               }}
             />

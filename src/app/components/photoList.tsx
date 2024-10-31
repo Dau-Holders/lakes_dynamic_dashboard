@@ -23,8 +23,16 @@ export default function PhotoList({
   updatePhotoList,
   singlePhotoLoading,
 }: PhotoListProps) {
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
+  const [selectedLake, setSelectedLake] = useState<string>("");
+  const [lakes] = useState([
+    "Lake Victoria",
+    "Lake Tanganyika",
+    "Lake Turkana",
+    "Lake Albert",
+    "Lake Kivu",
+    "Lake Malawi",
+    "Lake Edward",
+  ]);
   const [filteredPhotos, setFilteredPhotos] = useState<typeof photoList>([]);
 
   useEffect(() => {
@@ -53,21 +61,21 @@ export default function PhotoList({
         loading={loading}
         emptyMessage="No photos found"
         filterDisplay="menu"
-        globalFilterFields={['description', 'lake', 'capture_date', 'uploader']}
+        globalFilterFields={["description", "lake", "capture_date", "uploader"]}
         header={
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <div>
               <Dropdown
                 value={selectedLake}
                 options={lakes}
                 onChange={(e) => {
                   setSelectedLake(e.value);
-                  const filtered = e.value ? 
-                    photoList.filter(photo => photo.lake === e.value) : 
-                    photoList;
+                  const filtered = e.value
+                    ? photoList.filter((photo) => photo.lake === e.value)
+                    : photoList;
                   setFilteredPhotos(filtered);
                 }}
-                placeholder="Filter by Lake" 
+                placeholder="Filter by Lake"
                 className="w-[200px] mr-2"
               />
               <Button
@@ -84,11 +92,14 @@ export default function PhotoList({
               placeholder="Search photos..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = value ? photoList.filter(photo => 
-                  photo.description.toLowerCase().includes(filtered) ||
-                  photo.lake.toLowerCase().includes(filtered) ||
-                  photo.uploader.toLowerCase().includes(filtered)
-                ) : photoList;
+                const filteredData = value
+                  ? photoList.filter(
+                      (photo) =>
+                        photo.description.toLowerCase().includes(filtered) ||
+                        photo.lake.toLowerCase().includes(filtered) ||
+                        photo.uploader.toLowerCase().includes(filtered)
+                    )
+                  : photoList;
                 setFilteredPhotos(filteredData);
               }}
             />

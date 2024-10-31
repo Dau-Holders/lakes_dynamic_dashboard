@@ -15,11 +15,13 @@ export default function ArticleList() {
   const { articles, loading, dispatch } = useArticles();
   const [selectedLake, setSelectedLake] = useState<string>("");
   const [lakes] = useState([
-    "Victoria",
-    "Tanganyika",
-    "Malawi",
-    "Turkana",
-    "Albert",
+    "Lake Victoria",
+    "Lake Tanganyika",
+    "Lake Turkana",
+    "Lake Albert",
+    "Lake Kivu",
+    "Lake Malawi",
+    "Lake Edward",
   ]);
   const [filteredArticles, setFilteredArticles] = useState<typeof articles>([]);
 
@@ -59,17 +61,19 @@ export default function ArticleList() {
         loading={loading}
         emptyMessage="No publications found"
         filterDisplay="menu"
-        globalFilterFields={["title", "year", "keywords", "lake", "status"]}
         header={
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <div>
               <Dropdown
                 value={selectedLake}
                 options={lakes}
                 onChange={(e) => {
+                  console.log(articles);
                   setSelectedLake(e.value);
-                  const filtered = e.value
-                    ? articles.filter((article) => article.lake.includes(e.value))
+                  const filtered = e.valuemo
+                    ? articles.filter((article) =>
+                        article.lake.includes(e.value)
+                      )
                     : articles;
                   setFilteredArticles(filtered);
                 }}

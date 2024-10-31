@@ -27,9 +27,19 @@ export default function ProjectList({
   removeFromProjectList,
   singleProjectLoading,
 }: ProjectListProps) {
-  const [selectedLake, setSelectedLake] = useState<string>('');
-  const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredProjects, setFilteredProjects] = useState<typeof projectList>([]);
+  const [selectedLake, setSelectedLake] = useState<string>("");
+  const [lakes] = useState([
+    "Lake Victoria",
+    "Lake Tanganyika",
+    "Lake Turkana",
+    "Lake Albert",
+    "Lake Kivu",
+    "Lake Malawi",
+    "Lake Edward",
+  ]);
+  const [filteredProjects, setFilteredProjects] = useState<typeof projectList>(
+    []
+  );
 
   useEffect(() => {
     setFilteredProjects(projectList);
@@ -61,21 +71,20 @@ export default function ProjectList({
         loading={loading}
         emptyMessage="No projects found"
         filterDisplay="menu"
-        globalFilterFields={['title', 'description', 'lake', 'latitude', 'longitude', 'status']}
         header={
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <div>
               <Dropdown
                 value={selectedLake}
                 options={lakes}
                 onChange={(e) => {
                   setSelectedLake(e.value);
-                  const filtered = e.value ? 
-                    projectList.filter(project => project.lake === e.value) : 
-                    projectList;
+                  const filtered = e.value
+                    ? projectList.filter((project) => project.lake === e.value)
+                    : projectList;
                   setFilteredProjects(filtered);
                 }}
-                placeholder="Filter by Lake" 
+                placeholder="Filter by Lake"
                 className="w-[200px] mr-2"
               />
               <Button
@@ -92,12 +101,15 @@ export default function ProjectList({
               placeholder="Search projects..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = value ? projectList.filter(project => 
-                  project.title.toLowerCase().includes(filtered) ||
-                  project.description.toLowerCase().includes(filtered) ||
-                  project.lake.toLowerCase().includes(filtered) ||
-                  project.status.toLowerCase().includes(filtered)
-                ) : projectList;
+                const filteredData = value
+                  ? projectList.filter(
+                      (project) =>
+                        project.title.toLowerCase().includes(filtered) ||
+                        project.description.toLowerCase().includes(filtered) ||
+                        project.lake.toLowerCase().includes(filtered) ||
+                        project.status.toLowerCase().includes(filtered)
+                    )
+                  : projectList;
                 setFilteredProjects(filteredData);
               }}
             />
