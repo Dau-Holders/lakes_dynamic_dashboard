@@ -228,17 +228,26 @@ function actionsBodyTemplate(
   updateProjectList: (value: string) => void,
   loading: boolean
 ) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   function handleDelete() {
     updateProjectList(rowData.id);
+    setShowDeleteModal(false);
   }
 
   return (
     <div className="flex gap-2">
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        loading={loading}
+      />
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
         disabled={loading || rowData.status !== "pending"}
-        onClick={() => handleDelete()}
+        onClick={() => setShowDeleteModal(true)}
       />
     </div>
   );
