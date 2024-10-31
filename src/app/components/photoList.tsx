@@ -56,28 +56,30 @@ export default function PhotoList({
         globalFilterFields={['description', 'lake', 'capture_date', 'uploader']}
         header={
           <div className="flex justify-between items-center">
-            <Dropdown
-              value={selectedLake}
-              options={lakes}
-              onChange={(e) => {
-                setSelectedLake(e.value);
-                const filtered = e.value ? 
-                  photoList.filter(photo => photo.lake === e.value) : 
-                  photoList;
-                setFilteredPhotos(filtered);
-              }}
-              placeholder="Filter by Lake" 
-              className="w-[200px] mr-2"
-            />
-            <Button
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => {
-                setSelectedLake("");
-                setFilteredPhotos(photoList);
-              }}
-              disabled={!selectedLake}
-            />
+            <div className="flex items-center">
+              <Dropdown
+                value={selectedLake}
+                options={lakes}
+                onChange={(e) => {
+                  setSelectedLake(e.value);
+                  const filtered = e.value ? 
+                    photoList.filter(photo => photo.lake === e.value) : 
+                    photoList;
+                  setFilteredPhotos(filtered);
+                }}
+                placeholder="Filter by Lake" 
+                className="w-[200px] mr-2"
+              />
+              <Button
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => {
+                  setSelectedLake("");
+                  setFilteredPhotos(photoList);
+                }}
+                disabled={!selectedLake}
+              />
+            </div>
             <SearchInput
               placeholder="Search photos..."
               onSearch={(value) => {

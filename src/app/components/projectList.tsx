@@ -64,28 +64,30 @@ export default function ProjectList({
         globalFilterFields={['title', 'description', 'lake', 'latitude', 'longitude', 'status']}
         header={
           <div className="flex justify-between items-center">
-            <Dropdown
-              value={selectedLake}
-              options={lakes}
-              onChange={(e) => {
-                setSelectedLake(e.value);
-                const filtered = e.value ? 
-                  projectList.filter(project => project.lake === e.value) : 
-                  projectList;
-                setFilteredProjects(filtered);
-              }}
-              placeholder="Filter by Lake" 
-              className="w-[200px] mr-2"
-            />
-            <Button
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => {
-                setSelectedLake("");
-                setFilteredProjects(projectList);
-              }}
-              disabled={!selectedLake}
-            />
+            <div className="flex items-center">
+              <Dropdown
+                value={selectedLake}
+                options={lakes}
+                onChange={(e) => {
+                  setSelectedLake(e.value);
+                  const filtered = e.value ? 
+                    projectList.filter(project => project.lake === e.value) : 
+                    projectList;
+                  setFilteredProjects(filtered);
+                }}
+                placeholder="Filter by Lake" 
+                className="w-[200px] mr-2"
+              />
+              <Button
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => {
+                  setSelectedLake("");
+                  setFilteredProjects(projectList);
+                }}
+                disabled={!selectedLake}
+              />
+            </div>
             <SearchInput
               placeholder="Search projects..."
               onSearch={(value) => {

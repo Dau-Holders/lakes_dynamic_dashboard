@@ -62,28 +62,30 @@ export default function ArticleList() {
         globalFilterFields={["title", "year", "keywords", "lake", "status"]}
         header={
           <div className="flex justify-between items-center">
-            <Dropdown
-              value={selectedLake}
-              options={lakes}
-              onChange={(e) => {
-                setSelectedLake(e.value);
-                const filtered = e.value
-                  ? articles.filter((article) => article.lake.includes(e.value))
-                  : articles;
-                setFilteredArticles(filtered);
-              }}
-              placeholder="Filter by Lake"
-              className="w-[200px] mr-2"
-            />
-            <Button
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => {
-                setSelectedLake("");
-                setFilteredArticles(articles);
-              }}
-              disabled={!selectedLake}
-            />
+            <div className="flex items-center">
+              <Dropdown
+                value={selectedLake}
+                options={lakes}
+                onChange={(e) => {
+                  setSelectedLake(e.value);
+                  const filtered = e.value
+                    ? articles.filter((article) => article.lake.includes(e.value))
+                    : articles;
+                  setFilteredArticles(filtered);
+                }}
+                placeholder="Filter by Lake"
+                className="w-[200px] mr-2"
+              />
+              <Button
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => {
+                  setSelectedLake("");
+                  setFilteredArticles(articles);
+                }}
+                disabled={!selectedLake}
+              />
+            </div>
             <SearchInput
               placeholder="Search publications..."
               onSearch={(value) => {

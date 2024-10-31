@@ -63,28 +63,30 @@ export default function MetadataList({
         globalFilterFields={['title', 'period', 'lake', 'status']}
         header={
           <div className="flex justify-between items-center">
-            <Dropdown
-              value={selectedLake}
-              options={lakes}
-              onChange={(e) => {
-                setSelectedLake(e.value);
-                const filtered = e.value ? 
-                  metadataList.filter(metadata => metadata.lake === e.value) : 
-                  metadataList;
-                setFilteredMetadata(filtered);
-              }}
-              placeholder="Filter by Lake" 
-              className="w-[200px] mr-2"
-            />
-            <Button
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => {
-                setSelectedLake("");
-                setFilteredMetadata(metadataList);
-              }}
-              disabled={!selectedLake}
-            />
+            <div className="flex items-center">
+              <Dropdown
+                value={selectedLake}
+                options={lakes}
+                onChange={(e) => {
+                  setSelectedLake(e.value);
+                  const filtered = e.value ? 
+                    metadataList.filter(metadata => metadata.lake === e.value) : 
+                    metadataList;
+                  setFilteredMetadata(filtered);
+                }}
+                placeholder="Filter by Lake" 
+                className="w-[200px] mr-2"
+              />
+              <Button
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => {
+                  setSelectedLake("");
+                  setFilteredMetadata(metadataList);
+                }}
+                disabled={!selectedLake}
+              />
+            </div>
             <SearchInput
               placeholder="Search metadata..."
               onSearch={(value) => {
