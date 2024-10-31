@@ -261,6 +261,8 @@ function actionsBodyTemplate(
   loading: boolean
 ) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { user } = useAuthContext();
+  const isStaff = user?.is_staff;
 
   function handleDelete() {
     updateProjectList(rowData.id);
@@ -278,7 +280,7 @@ function actionsBodyTemplate(
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
-        disabled={loading || rowData.status !== "pending"}
+        disabled={loading || (!isStaff && rowData.status !== "pending")}
         onClick={() => setShowDeleteModal(true)}
       />
     </div>
