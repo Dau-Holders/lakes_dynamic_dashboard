@@ -74,8 +74,17 @@ export default function ProjectList({
                   projectList;
                 setFilteredProjects(filtered);
               }}
-              placeholder="Filter by Lake"
-              className="w-[200px]"
+              placeholder="Filter by Lake" 
+              className="w-[200px] mr-2"
+            />
+            <Button
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => {
+                setSelectedLake("");
+                setFilteredProjects(projectList);
+              }}
+              disabled={!selectedLake}
             />
             <SearchInput
               placeholder="Search projects..."

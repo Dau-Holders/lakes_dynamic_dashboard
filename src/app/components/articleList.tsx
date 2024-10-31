@@ -72,8 +72,17 @@ export default function ArticleList() {
                   : articles;
                 setFilteredArticles(filtered);
               }}
-              placeholder="Filter by Lake"
-              className="w-[200px]"
+              placeholder="Filter by Lake" 
+              className="w-[200px] mr-2"
+            />
+            <Button
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => {
+                setSelectedLake("");
+                setFilteredArticles(articles);
+              }}
+              disabled={!selectedLake}
             />
             <SearchInput
               placeholder="Search publications..."

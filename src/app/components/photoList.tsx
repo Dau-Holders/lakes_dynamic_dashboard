@@ -66,8 +66,17 @@ export default function PhotoList({
                   photoList;
                 setFilteredPhotos(filtered);
               }}
-              placeholder="Filter by Lake"
-              className="w-[200px]"
+              placeholder="Filter by Lake" 
+              className="w-[200px] mr-2"
+            />
+            <Button
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => {
+                setSelectedLake("");
+                setFilteredPhotos(photoList);
+              }}
+              disabled={!selectedLake}
             />
             <SearchInput
               placeholder="Search photos..."
