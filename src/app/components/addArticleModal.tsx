@@ -27,8 +27,8 @@ interface ArticleFormValues {
 }
 
 const publicationTypes = [
-  { label: 'Published', value: 'published' },
-  { label: 'Gray Literature', value: 'gray' }
+  { label: "Published", value: "published" },
+  { label: "Gray Literature", value: "gray" },
 ];
 
 export default function AddArticleModal() {
@@ -62,7 +62,7 @@ export default function AddArticleModal() {
           keywords: selectedArticleDetails.keywords,
           selectedLakes: selectedArticleDetails.lake,
           file: null,
-          type: selectedArticleDetails.type || "published"
+          type: selectedArticleDetails.type || "published",
         }
       : {
           title: "",
@@ -179,6 +179,7 @@ export default function AddArticleModal() {
           is_published: false,
           status: "pending",
           file: articleResponse.data?.file,
+          type: data.type,
         };
 
         dispatch({

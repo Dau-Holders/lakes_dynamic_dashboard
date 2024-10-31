@@ -9,6 +9,7 @@ export interface Article {
   is_published: boolean;
   status: "pending" | "approved" | "rejected";
   file: string;
+  type: string;
 }
 
 export interface User {
