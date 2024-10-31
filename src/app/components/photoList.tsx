@@ -1,4 +1,5 @@
 import { Button } from "primereact/button";
+import DeleteConfirmationModal from "./deleteConfirmationModal";
 import { PhotoPayload } from "../utils/types";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -177,17 +178,26 @@ function actionsBodyTemplate(
   updatePhotoList: (value: string) => void,
   loading: boolean
 ) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   function handleDelete() {
     updatePhotoList(rowData.id);
+    setShowDeleteModal(false);
   }
 
   return (
     <div className="flex gap-2">
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        loading={loading}
+      />
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
         disabled={loading}
-        onClick={() => handleDelete()}
+        onClick={() => setShowDeleteModal(true)}
       />
       <Link href={rowData.image} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />

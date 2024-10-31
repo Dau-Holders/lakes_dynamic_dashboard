@@ -1,4 +1,5 @@
 import { Button } from "primereact/button";
+import DeleteConfirmationModal from "./deleteConfirmationModal";
 import { ProjectPayload } from "../utils/types";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";

@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import DeleteConfirmationModal from "./deleteConfirmationModal";
 import SearchInput from "./SearchInput";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
@@ -260,6 +261,8 @@ function iconsBodyTemplate(rowData: any) {
     });
   }
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   async function handleDeleteArticle() {
     const id = rowData.id;
     try {
@@ -269,6 +272,7 @@ function iconsBodyTemplate(rowData: any) {
         type: "DELETE_ARTICLE",
         id,
       });
+      setShowDeleteModal(false);
     } catch (err) {
       toast.current?.show({
         severity: "error",
@@ -293,11 +297,17 @@ function iconsBodyTemplate(rowData: any) {
         disabled={rowData.status !== "pending"}
         onClick={() => handleEditArticle()}
       />
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteArticle}
+        loading={deleteLoading}
+      />
       <Button
         icon="pi pi-trash"
         className="w-10 h-10"
         disabled={deleteLoading || rowData.status === "approved"}
-        onClick={() => handleDeleteArticle()}
+        onClick={() => setShowDeleteModal(true)}
       />
       <Link href={rowData?.file ?? ""} target="blank">
         <Button icon="pi pi-download" className="w-10 h-10" disabled={false} />
