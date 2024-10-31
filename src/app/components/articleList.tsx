@@ -147,6 +147,11 @@ export default function ArticleList() {
           header="Approval Status"
           body={approvedBodyTemplate}
         />
+        <Column
+          field="type"
+          header="Type"
+          body={typeBodyTemplate}
+        />
         <Column header="Actions" body={buttonsBodyTemplate} />
       </DataTable>
     </div>
@@ -219,6 +224,16 @@ function keywordsBodyTemplate(rowData: any) {
     );
   }
   return null;
+}
+
+function typeBodyTemplate(rowData: any) {
+  const type = rowData.type || 'published';
+  return (
+    <div className="flex items-center space-x-1">
+      <i className={`pi ${type === 'published' ? 'pi-book' : 'pi-file'} text-xs text-gray-600 mr-1`} />
+      <p className="text-gray-600 text-sm capitalize">{type}</p>
+    </div>
+  );
 }
 
 function approvedBodyTemplate(rowData: any) {
