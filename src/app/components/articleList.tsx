@@ -419,8 +419,35 @@ function iconsAdminBodyTemplate(rowData: any) {
     }
   }
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  async function handleDeleteArticle() {
+    const id = rowData.id;
+    try {
+      setLoading(true);
+      await privateApi.delete(`/publications/${id}`);
+      dispatch({
+        type: "DELETE_ARTICLE",
+        id,
+      });
+      setShowDeleteModal(false);
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error deleting publication",
+      });
+      setTimeout(() => {
+        toast.current?.clear();
+      }, 5000);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex gap-2">
+      <Toast ref={toast} />
       <Button
         icon="pi pi-check"
         className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
@@ -432,6 +459,18 @@ function iconsAdminBodyTemplate(rowData: any) {
         className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
         disabled={(rowData.status !== "pending" || loading) && !isAdmin}
         onClick={handleReject}
+      />
+      <Button
+        icon="pi pi-trash"
+        className="w-10 h-10"
+        disabled={loading}
+        onClick={() => setShowDeleteModal(true)}
+      />
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteArticle}
+        loading={loading}
       />
       <Link href={rowData?.file ?? ""} target="blank">
         <Button
