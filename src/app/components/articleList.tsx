@@ -100,7 +100,7 @@ export default function ArticleList() {
                       (article) =>
                         article.title.toLowerCase().includes(filtered) ||
                         article.keywords?.toLowerCase().includes(filtered) ||
-                        article.lake.some((lake) =>
+                        article.lake.some((lake: string) =>
                           lake.toLowerCase().includes(filtered)
                         ) ||
                         article.status.toLowerCase().includes(filtered)
