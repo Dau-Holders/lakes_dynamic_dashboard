@@ -213,9 +213,12 @@ export default function AddArticleModal() {
     { label: "Lake Edward", value: "Lake Edward" },
   ];
 
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
+
   const handleFileUpload = (e: FileUploadHandlerEvent) => {
     if (e.files && e.files[0]) {
       setValue("file", e.files[0]);
+      setSelectedFileName(e.files[0].name);
       clearErrors("file");
     }
   };
@@ -379,16 +382,24 @@ export default function AddArticleModal() {
             required: !selectedArticleDetails && "Please select a file",
           }}
           render={({ field }) => (
-            <FileUpload
-              id="file"
-              name="file"
-              accept=".pdf"
-              mode="basic"
-              auto
-              customUpload
-              uploadHandler={handleFileUpload}
-              chooseLabel="Choose Publication"
-            />
+            <div className="flex items-center gap-4">
+              <FileUpload
+                id="file"
+                name="file"
+                accept=".pdf"
+                mode="basic"
+                auto
+                customUpload
+                uploadHandler={handleFileUpload}
+                chooseLabel="Choose Publication"
+              />
+              {selectedFileName && (
+                <div className="flex items-center text-sm text-gray-600">
+                  <i className="pi pi-file-pdf mr-2" />
+                  <span>{selectedFileName}</span>
+                </div>
+              )}
+            </div>
           )}
         />
         {errors.file && (
