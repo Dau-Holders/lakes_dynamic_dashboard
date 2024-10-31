@@ -31,7 +31,7 @@ export default function ArticleList() {
   }, [articles]);
   const { user } = useAuthContext();
 
-  const isAdmin = user?.designation === "admin";
+  const isAdmin = user?.is_staff;
 
   function handleShowModal() {
     console.log("clicked");
@@ -147,11 +147,7 @@ export default function ArticleList() {
           header="Approval Status"
           body={approvedBodyTemplate}
         />
-        <Column
-          field="type"
-          header="Type"
-          body={typeBodyTemplate}
-        />
+        <Column field="type" header="Type" body={typeBodyTemplate} />
         <Column header="Actions" body={buttonsBodyTemplate} />
       </DataTable>
     </div>
@@ -227,10 +223,14 @@ function keywordsBodyTemplate(rowData: any) {
 }
 
 function typeBodyTemplate(rowData: any) {
-  const type = rowData.type || 'published';
+  const type = rowData.type || "published";
   return (
     <div className="flex items-center space-x-1">
-      <i className={`pi ${type === 'published' ? 'pi-book' : 'pi-file'} text-xs text-gray-600 mr-1`} />
+      <i
+        className={`pi ${
+          type === "published" ? "pi-book" : "pi-file"
+        } text-xs text-gray-600 mr-1`}
+      />
       <p className="text-gray-600 text-sm capitalize">{type}</p>
     </div>
   );
@@ -341,6 +341,9 @@ function iconsAdminBodyTemplate(rowData: any) {
   const privateApi = useRefreshToken();
   const [loading, setLoading] = useState<boolean>(false);
   const toast = useRef<Toast>(null);
+  const { user } = useAuthContext();
+
+  const isAdmin = user?.is_staff;
 
   async function handleApprove() {
     const id = rowData.id;
@@ -421,16 +424,16 @@ function iconsAdminBodyTemplate(rowData: any) {
       <Button
         icon="pi pi-check"
         className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
-        disabled={rowData.status !== "pending" || loading}
+        disabled={(rowData.status !== "pending" || loading) && !isAdmin}
         onClick={handleApprove}
       />
       <Button
         icon="pi pi-times"
         className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
-        disabled={rowData.status !== "pending" || loading}
+        disabled={(rowData.status !== "pending" || loading) && !isAdmin}
         onClick={handleReject}
       />
-      <Link href={rowData.file} target="blank">
+      <Link href={rowData?.file ?? ""} target="blank">
         <Button
           icon="pi pi-download"
           className="w-10 h-10"
