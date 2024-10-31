@@ -33,7 +33,8 @@ export default function ArticleList() {
 
   const isAdmin = user?.designation === "admin";
 
-  function showArticlesModal() {
+  function handleShowModal() {
+    console.log("clicked");
     dispatch({
       type: "SHOW_ARTICLES_MODAL",
     });
@@ -50,7 +51,11 @@ export default function ArticleList() {
         <Button
           icon="pi pi-plus"
           label="Add Publication"
-          onClick={showArticlesModal}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleShowModal();
+          }}
           outlined
         />
       </div>
