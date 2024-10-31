@@ -71,7 +71,7 @@ export default function ArticleList() {
                 onChange={(e) => {
                   console.log(articles);
                   setSelectedLake(e.value);
-                  const filtered = e.valuemo
+                  const filtered = e.value
                     ? articles.filter((article) =>
                         article.lake.includes(e.value)
                       )
