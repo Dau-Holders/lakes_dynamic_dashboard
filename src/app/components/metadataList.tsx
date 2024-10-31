@@ -370,7 +370,6 @@ function iconsAdminBodyTemplate(
         visible={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={() => {
-          updateMetadataList(rowData.id);
           setShowDeleteModal(false);
         }}
         loading={loading}

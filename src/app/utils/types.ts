@@ -22,6 +22,7 @@ export interface User {
   organization: string;
   designation: string;
   photo: string;
+  is_staff: boolean;
 }
 
 export interface MetadataPayload {

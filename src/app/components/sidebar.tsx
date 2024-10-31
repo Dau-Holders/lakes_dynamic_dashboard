@@ -126,14 +126,6 @@ export default function AppSideBar() {
   return (
     <div className="min-h-screen min-w-64 bg-white">
       <Menu model={items} className="w-full md:w-15rem border-none" />
-      <Dialog
-        visible={showArticlesModal}
-        className="w-[95%] sm:max-w-md md:max-w-lg"
-        onHide={() => dispatch({ type: "HIDE_ARTICLES_MODAL" })}
-        header={modalHeader}
-      >
-        <AddArticleModal />
-      </Dialog>
     </div>
   );
 }

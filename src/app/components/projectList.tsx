@@ -295,6 +295,9 @@ function actionsAdminBodyTemplate(
   const privateApi = useRefreshToken();
   const toast = useRef<Toast>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { user } = useAuthContext();
+
+  const isAdmin = user?.is_staff;
 
   async function handleApprove() {
     const id = rowData.id;
@@ -365,7 +368,6 @@ function actionsAdminBodyTemplate(
         visible={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={() => {
-          updateProjectList(rowData.id);
           setShowDeleteModal(false);
         }}
         loading={loading}
@@ -373,13 +375,13 @@ function actionsAdminBodyTemplate(
       <Button
         icon="pi pi-check"
         className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
-        disabled={rowData.status !== "pending" || loading}
+        disabled={(rowData.status !== "pending" || loading) && !isAdmin}
         onClick={handleApprove}
       />
       <Button
         icon="pi pi-times"
         className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
-        disabled={rowData.status !== "pending" || loading}
+        disabled={(rowData.status !== "pending" || loading) && !isAdmin}
         onClick={handleReject}
       />
       <Button
