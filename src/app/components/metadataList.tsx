@@ -297,6 +297,7 @@ function iconsAdminBodyTemplate(
 ) {
   const privateApi = useRefreshToken();
   const toast = useRef<Toast>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   async function handleApprove() {
     const id = rowData.id;
@@ -363,6 +364,15 @@ function iconsAdminBodyTemplate(
   return (
     <div className="flex gap-2">
       <Toast ref={toast} />
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          updateMetadataList(rowData.id);
+          setShowDeleteModal(false);
+        }}
+        loading={loading}
+      />
 
       <Button
         icon="pi pi-check"
@@ -376,9 +386,13 @@ function iconsAdminBodyTemplate(
         disabled={rowData.status !== "pending" || loading}
         onClick={handleReject}
       />
-      {/* <Link href={rowData.file} target="blank"> */}
       <Button icon="pi pi-download" className="w-10 h-10" disabled={loading} />
-      {/* </Link> */}
+      <Button
+        icon="pi pi-trash"
+        className="w-10 h-10"
+        disabled={loading}
+        onClick={() => setShowDeleteModal(true)}
+      />
     </div>
   );
 }

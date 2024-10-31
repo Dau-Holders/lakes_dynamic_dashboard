@@ -292,6 +292,7 @@ function actionsAdminBodyTemplate(
 ) {
   const privateApi = useRefreshToken();
   const toast = useRef<Toast>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   async function handleApprove() {
     const id = rowData.id;
@@ -358,6 +359,15 @@ function actionsAdminBodyTemplate(
   return (
     <div className="flex gap-2">
       <Toast ref={toast} />
+      <DeleteConfirmationModal
+        visible={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          updateProjectList(rowData.id);
+          setShowDeleteModal(false);
+        }}
+        loading={loading}
+      />
       <Button
         icon="pi pi-check"
         className="w-10 h-10 bg-green-500 border border-green-500 text-white hover:bg-green-600"
@@ -369,6 +379,12 @@ function actionsAdminBodyTemplate(
         className="w-10 h-10 bg-red-500 text-white border border-red-500 hover:bg-red-600"
         disabled={rowData.status !== "pending" || loading}
         onClick={handleReject}
+      />
+      <Button
+        icon="pi pi-trash"
+        className="w-10 h-10"
+        disabled={loading}
+        onClick={() => setShowDeleteModal(true)}
       />
     </div>
   );
