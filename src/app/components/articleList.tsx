@@ -72,7 +72,7 @@ export default function ArticleList() {
                   : articles;
                 setFilteredArticles(filtered);
               }}
-              placeholder="Filter by Lake" 
+              placeholder="Filter by Lake"
               className="w-[200px] mr-2"
             />
             <Button
@@ -88,12 +88,17 @@ export default function ArticleList() {
               placeholder="Search publications..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
-                const filteredData = value ? articles.filter(article => 
-                  article.title.toLowerCase().includes(filtered) ||
-                  article.keywords?.toLowerCase().includes(filtered) ||
-                  article.lake.some(lake => lake.toLowerCase().includes(filtered)) ||
-                  article.status.toLowerCase().includes(filtered)
-                ) : articles;
+                const filteredData = value
+                  ? articles.filter(
+                      (article) =>
+                        article.title.toLowerCase().includes(filtered) ||
+                        article.keywords?.toLowerCase().includes(filtered) ||
+                        article.lake.some((lake) =>
+                          lake.toLowerCase().includes(filtered)
+                        ) ||
+                        article.status.toLowerCase().includes(filtered)
+                    )
+                  : articles;
                 setFilteredArticles(filteredData);
               }}
             />
