@@ -121,7 +121,7 @@ export default function AddArticleModal() {
       const authors = data.authors.map((author) => author.name).join(",");
       formData.append("title", data.title);
       formData.append("abstract", data.abstract);
-      formData.append("publicationDate", data.publicationDate.toISOString());
+      formData.append("year", data.publicationDate.getFullYear().toString());
       formData.append("keywords", data.keywords);
       formData.append("lake", data.selectedLakes);
       formData.append("uploader", user.username);
