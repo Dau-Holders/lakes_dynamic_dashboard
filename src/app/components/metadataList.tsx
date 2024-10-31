@@ -46,7 +46,7 @@ export default function MetadataList({
     setFilteredMetadata(metadataList);
   }, [metadataList]);
   const { user } = useAuthContext();
-  const isAdmin = user?.designation === "admin";
+  const isAdmin = user?.is_staff;
 
   function showMetadataModal() {
     setShowMetadataModal(true);
@@ -61,17 +61,19 @@ export default function MetadataList({
             icon="pi pi-download"
             label="Export"
             onClick={() => {
-              const csv = filteredMetadata.map(item => ({
+              const csv = filteredMetadata.map((item) => ({
                 title: item.title,
                 period: item.period,
                 lake: item.lake,
                 status: item.status,
                 email: item.email,
-                description: item.description
+                description: item.description,
               }));
-              const csvContent = "data:text/csv;charset=utf-8," + 
-                Object.keys(csv[0]).join(",") + "\n" +
-                csv.map(row => Object.values(row).join(",")).join("\n");
+              const csvContent =
+                "data:text/csv;charset=utf-8," +
+                Object.keys(csv[0]).join(",") +
+                "\n" +
+                csv.map((row) => Object.values(row).join(",")).join("\n");
               const link = document.createElement("a");
               link.setAttribute("href", encodeURI(csvContent));
               link.setAttribute("download", "metadata.csv");

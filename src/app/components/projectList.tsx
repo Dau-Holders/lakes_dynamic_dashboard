@@ -46,7 +46,7 @@ export default function ProjectList({
     setFilteredProjects(projectList);
   }, [projectList]);
   const { user } = useAuthContext();
-  const isAdmin = user?.designation === "admin";
+  const isAdmin = user?.is_staff;
   const toast = useRef<Toast>(null);
 
   function showProjectModal() {
@@ -62,17 +62,19 @@ export default function ProjectList({
             icon="pi pi-download"
             label="Export"
             onClick={() => {
-              const csv = filteredProjects.map(item => ({
+              const csv = filteredProjects.map((item) => ({
                 title: item.title,
                 description: item.description,
                 lake: item.lake,
                 latitude: item.latitude,
                 longitude: item.longitude,
-                status: item.status
+                status: item.status,
               }));
-              const csvContent = "data:text/csv;charset=utf-8," + 
-                Object.keys(csv[0]).join(",") + "\n" +
-                csv.map(row => Object.values(row).join(",")).join("\n");
+              const csvContent =
+                "data:text/csv;charset=utf-8," +
+                Object.keys(csv[0]).join(",") +
+                "\n" +
+                csv.map((row) => Object.values(row).join(",")).join("\n");
               const link = document.createElement("a");
               link.setAttribute("href", encodeURI(csvContent));
               link.setAttribute("download", "projects.csv");
