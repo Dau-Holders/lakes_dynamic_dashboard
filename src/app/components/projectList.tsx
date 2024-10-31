@@ -57,21 +57,50 @@ export default function ProjectList({
     <div className="bg-white p-6 rounded-lg m-4">
       <div className="flex justify-between mb-4">
         <p className="font-bold text-xl">Projects</p>
-        <Button
-          icon="pi pi-plus"
-          label="Add Project"
-          onClick={showProjectModal}
-          outlined
-        />
+        <div className="flex gap-2">
+          <Button
+            icon="pi pi-download"
+            label="Export"
+            onClick={() => {
+              const csv = filteredProjects.map(item => ({
+                title: item.title,
+                description: item.description,
+                lake: item.lake,
+                latitude: item.latitude,
+                longitude: item.longitude,
+                status: item.status
+              }));
+              const csvContent = "data:text/csv;charset=utf-8," + 
+                Object.keys(csv[0]).join(",") + "\n" +
+                csv.map(row => Object.values(row).join(",")).join("\n");
+              const link = document.createElement("a");
+              link.setAttribute("href", encodeURI(csvContent));
+              link.setAttribute("download", "projects.csv");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="p-button-secondary"
+          />
+          <Button
+            icon="pi pi-plus"
+            label="Add Project"
+            onClick={showProjectModal}
+            outlined
+          />
+        </div>
       </div>
       <DataTable
         value={filteredProjects}
         paginator
-        rows={6}
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         dataKey="id"
         loading={loading}
         emptyMessage="No projects found"
         filterDisplay="menu"
+        sortMode="multiple"
+        removableSort
         header={
           <div className="flex justify-between items-center">
             <div>
@@ -121,6 +150,7 @@ export default function ProjectList({
           field="title"
           header="Title"
           filter
+          sortable
           filterPlaceholder="Search by title"
           body={titleBodyTemplate}
         />

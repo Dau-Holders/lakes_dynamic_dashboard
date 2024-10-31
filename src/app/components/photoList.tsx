@@ -47,21 +47,49 @@ export default function PhotoList({
     <div className="bg-white p-6 rounded-lg m-4">
       <div className="flex justify-between mb-4">
         <p className="font-bold text-xl">Photos</p>
-        <Button
-          icon="pi pi-plus"
-          label="Add Photo"
-          onClick={showPhotoModal}
-          outlined
-        />
+        <div className="flex gap-2">
+          <Button
+            icon="pi pi-download"
+            label="Export"
+            onClick={() => {
+              const csv = filteredPhotos.map(item => ({
+                description: item.description,
+                lake: item.lake,
+                capture_date: new Date(item.capture_date).toLocaleDateString(),
+                uploader: item.uploader,
+                image_url: item.image
+              }));
+              const csvContent = "data:text/csv;charset=utf-8," + 
+                Object.keys(csv[0]).join(",") + "\n" +
+                csv.map(row => Object.values(row).join(",")).join("\n");
+              const link = document.createElement("a");
+              link.setAttribute("href", encodeURI(csvContent));
+              link.setAttribute("download", "photos.csv");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="p-button-secondary"
+          />
+          <Button
+            icon="pi pi-plus"
+            label="Add Photo"
+            onClick={showPhotoModal}
+            outlined
+          />
+        </div>
       </div>
       <DataTable
         value={filteredPhotos}
         paginator
-        rows={6}
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         dataKey="id"
         loading={loading}
         emptyMessage="No photos found"
         filterDisplay="menu"
+        sortMode="multiple"
+        removableSort
         globalFilterFields={["description", "lake", "capture_date", "uploader"]}
         header={
           <div className="flex justify-between items-center">
