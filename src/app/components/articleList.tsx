@@ -21,8 +21,11 @@ export default function ArticleList() {
     "Turkana",
     "Albert",
   ]);
-  const [filteredArticles, setFilteredArticles] =
-    useState<typeof articles>(articles);
+  const [filteredArticles, setFilteredArticles] = useState<typeof articles>([]);
+
+  useEffect(() => {
+    setFilteredArticles(articles);
+  }, [articles]);
   const { user } = useAuthContext();
 
   const isAdmin = user?.designation === "admin";

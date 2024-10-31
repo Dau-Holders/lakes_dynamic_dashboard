@@ -29,7 +29,11 @@ export default function ProjectList({
 }: ProjectListProps) {
   const [selectedLake, setSelectedLake] = useState<string>('');
   const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredProjects, setFilteredProjects] = useState(projectList);
+  const [filteredProjects, setFilteredProjects] = useState<typeof projectList>([]);
+
+  useEffect(() => {
+    setFilteredProjects(projectList);
+  }, [projectList]);
   const { user } = useAuthContext();
   const isAdmin = user?.designation === "admin";
   const toast = useRef<Toast>(null);

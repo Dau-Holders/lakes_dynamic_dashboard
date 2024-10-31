@@ -25,7 +25,11 @@ export default function PhotoList({
 }: PhotoListProps) {
   const [selectedLake, setSelectedLake] = useState<string>('');
   const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredPhotos, setFilteredPhotos] = useState(photoList);
+  const [filteredPhotos, setFilteredPhotos] = useState<typeof photoList>([]);
+
+  useEffect(() => {
+    setFilteredPhotos(photoList);
+  }, [photoList]);
   function showPhotoModal() {
     setShowPhotoModal(true);
   }

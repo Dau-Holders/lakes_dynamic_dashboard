@@ -29,7 +29,11 @@ export default function MetadataList({
 }: MetadataListProps) {
   const [selectedLake, setSelectedLake] = useState<string>('');
   const [lakes] = useState(['Victoria', 'Tanganyika', 'Malawi', 'Turkana', 'Albert']);
-  const [filteredMetadata, setFilteredMetadata] = useState(metadataList);
+  const [filteredMetadata, setFilteredMetadata] = useState<typeof metadataList>([]);
+
+  useEffect(() => {
+    setFilteredMetadata(metadataList);
+  }, [metadataList]);
   const { user } = useAuthContext();
   const isAdmin = user?.designation === "admin";
 
