@@ -23,7 +23,13 @@ interface ArticleFormValues {
   keywords: string;
   selectedLakes: string;
   file: File | null;
+  type: string;
 }
+
+const publicationTypes = [
+  { label: 'Published', value: 'published' },
+  { label: 'Gray Literature', value: 'gray' }
+];
 
 export default function AddArticleModal() {
   const { dispatch, selectedArticle, articles } = useArticles();
@@ -56,6 +62,7 @@ export default function AddArticleModal() {
           keywords: selectedArticleDetails.keywords,
           selectedLakes: selectedArticleDetails.lake,
           file: null,
+          type: selectedArticleDetails.type || "published"
         }
       : {
           title: "",
@@ -65,6 +72,7 @@ export default function AddArticleModal() {
           keywords: "",
           selectedLakes: "",
           file: null,
+          type: "published",
         },
   });
 
@@ -118,6 +126,7 @@ export default function AddArticleModal() {
       formData.append("lake", data.selectedLakes);
       formData.append("uploader", user.username);
       formData.append("author", authors);
+      formData.append("type", data.type);
 
       if (data.file) {
         formData.append("file", data.file);
@@ -225,6 +234,28 @@ export default function AddArticleModal() {
         />
         {errors.title && (
           <p className="text-red-500 mt-1">{errors.title.message}</p>
+        )}
+      </div>
+      <div className="mb-4">
+        <label htmlFor="type" className="block mb-2">
+          Publication Type
+        </label>
+        <Controller
+          control={control}
+          name="type"
+          rules={{ required: "Publication type is required" }}
+          render={({ field }) => (
+            <Dropdown
+              id="type"
+              options={publicationTypes}
+              className="w-full p-dropdown-sm"
+              value={field.value}
+              onChange={(e) => field.onChange(e.value)}
+            />
+          )}
+        />
+        {errors.type && (
+          <p className="text-red-500 mt-1">{errors.type.message}</p>
         )}
       </div>
       <div className="mb-4">
