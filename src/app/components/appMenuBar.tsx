@@ -24,7 +24,7 @@ export default function AppMenuBar() {
               {hasName ? (
                 <span className="font-semibold p-0 m-0">{fullName}</span>
               ) : null}
-              <span className="text-sm p-0 my-0">{user?.designation}</span>
+              <span className="text-sm p-0 my-0">{user?.email}</span>
             </div>
           </button>
         );

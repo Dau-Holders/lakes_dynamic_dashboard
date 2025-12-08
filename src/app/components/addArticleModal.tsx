@@ -37,6 +37,7 @@ export default function AddArticleModal() {
   const [loading, setLoading] = useState(false);
   const privateApi = useRefreshToken();
   const messages = useRef<Messages>(null);
+  const fileUploadRef = useRef<FileUpload>(null);
 
   const selectedArticleDetails = articles.find(
     (article) => article.id === selectedArticle
@@ -187,6 +188,9 @@ export default function AddArticleModal() {
           article: newArticle,
         });
       }
+      setValue("file", null);
+      setSelectedFileName("");
+      fileUploadRef.current?.clear();
     } catch (error) {
       messages.current?.show([
         {
@@ -216,13 +220,7 @@ export default function AddArticleModal() {
 
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
-  const handleFileUpload = (e: FileUploadHandlerEvent) => {
-    if (e.files && e.files[0]) {
-      setValue("file", e.files[0]);
-      setSelectedFileName(e.files[0].name);
-      clearErrors("file");
-    }
-  };
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto">
@@ -385,13 +383,18 @@ export default function AddArticleModal() {
           render={({ field }) => (
             <div className="flex items-center gap-4">
               <FileUpload
+                ref={fileUploadRef}
                 id="file"
                 name="file"
                 accept=".pdf"
                 mode="basic"
-                auto
-                customUpload
-                uploadHandler={handleFileUpload}
+                onSelect={(e) => {
+                  if (e.files && e.files[0]) {
+                    field.onChange(e.files[0]);
+                    setSelectedFileName(e.files[0].name);
+                    clearErrors("file");
+                  }
+                }}
                 chooseLabel="Choose Publication"
               />
               {selectedFileName && (

@@ -7,10 +7,11 @@ import { Dialog } from "primereact/dialog";
 import AddArticleModal from "./addArticleModal";
 import { useAuthContext } from "../contexts/authContext";
 import { api, logout } from "../lib/api";
+import { Avatar } from "primereact/avatar";
 
 export default function AppSideBar() {
   const { dispatch, showArticlesModal } = useArticles();
-  const { dispatch: authDispatch } = useAuthContext();
+  const { dispatch: authDispatch, user } = useAuthContext();
   const router = useRouter();
 
   const items: MenuItem[] = [
@@ -29,16 +30,7 @@ export default function AppSideBar() {
     {
       label: "Publications",
       items: [
-        {
-          label: "Add Publication",
-          icon: "pi pi-plus",
-          command: () => {
-            console.log("Button Clicked");
-            dispatch({
-              type: "SHOW_ARTICLES_MODAL",
-            });
-          },
-        },
+
         {
           label: "Publications",
           icon: "pi pi-file",
@@ -124,8 +116,30 @@ export default function AppSideBar() {
   const modalHeader = AddArticleModalTitle;
 
   return (
-    <div className="min-h-screen min-w-64 bg-white">
+    <div className="h-full min-w-64 bg-white flex flex-col justify-between">
       <Menu model={items} className="w-full md:w-15rem border-none" />
+      
+      {/* User Profile Section */}
+      <div className="p-4 border-t border-gray-100 mb-4">
+        <div className="flex items-center gap-3">
+          <Avatar 
+            label={user?.first_name?.charAt(0) || user?.email?.charAt(0)} 
+            icon={!user?.first_name && "pi pi-user"} 
+            className="p-overlay-badge" 
+            shape="circle" 
+            size="normal"
+            style={{ backgroundColor: '#2196F3', color: '#ffffff' }}
+          />
+          <div className="flex flex-col overflow-hidden">
+            <span className="font-semibold text-sm truncate text-gray-900">
+              {user?.first_name} {user?.last_name}
+            </span>
+            <span className="text-xs text-gray-500 truncate mt-0.5">
+              {user?.email}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -68,7 +68,7 @@ export default function Page() {
       <AppSideBar />
       <div className="container mx-auto">
         <div className="justify-end flex px-6">
-          <AppMenuBar />
+          
         </div>
         <PhotoList
           photoList={photoList}

@@ -30,11 +30,13 @@ export default function AddPhotoModal({
   const [loading, setLoading] = useState(false);
   const privateApi = useRefreshToken();
   const messages = useRef<Messages>(null);
+  const fileUploadRef = useRef<FileUpload>(null);
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<PhotoFormValues>({
     defaultValues: {
@@ -76,6 +78,10 @@ export default function AddPhotoModal({
         image: response.data.image,
       };
       addPhoto(newPhotoItem);
+      // Reset form and file upload
+      fileUploadRef.current?.clear();
+      // We don't have setValue here? Wait, addPhotoModal uses useForm but didn't destructure setValue.
+      // I need to add setValue to useForm destructuring.
       setShowPhotoModal(false);
     } catch (error) {
       console.error("Error submitting photo:", error);
@@ -160,16 +166,26 @@ export default function AddPhotoModal({
           name="file"
           rules={{ required: "Please upload an image" }}
           render={({ field }) => (
-            <FileUpload
-              id="file"
-              mode="basic"
-              accept="image/*"
-              customUpload
-              auto
-              chooseLabel="Select Image"
-              className="w-full"
-              uploadHandler={(e) => field.onChange(e.files[0])}
-            />
+            <div className="flex flex-col gap-2">
+              <FileUpload
+                ref={fileUploadRef}
+                id="file"
+                mode="basic"
+                accept="image/*"
+                chooseLabel="Select Image"
+                className="w-full"
+                onSelect={(e) => {
+                  if (e.files && e.files.length > 0) {
+                    field.onChange(e.files[0]);
+                  }
+                }}
+              />
+              {field.value instanceof File && (
+                <span className="text-sm text-gray-600">
+                  Selected: {field.value.name}
+                </span>
+              )}
+            </div>
           )}
         />
         {errors.file && (

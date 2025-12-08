@@ -4,11 +4,14 @@ import { Dialog } from "primereact/dialog";
 import AddArticleModal from "./addArticleModal";
 import AppSidebar from "./sidebar";
 import { useState } from "react";
-import AppMenuBar from "./appMenuBar";
+import { Sidebar } from "primereact/sidebar";
+import { Button } from "primereact/button";
+
 
 export default function UserDashboard() {
   const { showArticlesModal, dispatch } = useArticles();
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
+  const [mobileSidebarVisible, setMobileSidebarVisible] = useState(false);
 
   function AddArticleModalTitle() {
     return (
@@ -21,16 +24,34 @@ export default function UserDashboard() {
   const modalHeader = AddArticleModalTitle;
 
   return (
-    <div className="flex">
-      {showSidebar ? (
-        <div className="">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Mobile Header */}
+      <div className="md:hidden p-4 bg-white flex items-center justify-between border-b shadow-sm">
+        <span className="font-bold text-xl">AGLA Dashboard</span>
+        <Button
+          icon="pi pi-bars"
+          className="p-button-text"
+          onClick={() => setMobileSidebarVisible(true)}
+        />
+      </div>
+
+      {/* Mobile Drawer */}
+      <Sidebar
+        visible={mobileSidebarVisible}
+        onHide={() => setMobileSidebarVisible(false)}
+        className="w-64 p-0"
+      >
+        <AppSidebar />
+      </Sidebar>
+
+      {/* Desktop Sidebar */}
+      {showSidebar && (
+        <div className="hidden md:block border-r border-gray-200">
           <AppSidebar />
         </div>
-      ) : null}
+      )}
       <div className="container mx-auto">
-        <div className="justify-end flex px-6">
-          <AppMenuBar />
-        </div>
+
         <ArticleList />
         <Dialog
           visible={showArticlesModal}

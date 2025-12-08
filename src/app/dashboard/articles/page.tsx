@@ -2,7 +2,6 @@
 import { useArticles } from "../../contexts/articlesContext";
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
-import AppMenuBar from "../../components/appMenuBar";
 import AppSideBar from "../../components/sidebar";
 import ArticleList from "../../components/articleList";
 import AddArticleModal from "../../components/addArticleModal";
@@ -29,9 +28,6 @@ export default function UserDashboard() {
         </div>
       ) : null}
       <div className="container mx-auto">
-        <div className=" justify-end flex px-6">
-          <AppMenuBar />
-        </div>
         <ArticleList />
         <Dialog
           visible={showArticlesModal}

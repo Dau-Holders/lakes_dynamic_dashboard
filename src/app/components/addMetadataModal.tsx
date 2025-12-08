@@ -33,7 +33,9 @@ export default function AddMetadataModal({
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const privateApi = useRefreshToken();
+
   const messages = useRef<Messages>(null);
+  const fileUploadRef = useRef<FileUpload>(null);
 
   const {
     register,
@@ -95,6 +97,9 @@ export default function AddMetadataModal({
         status: "pending",
       };
       addMetadata(newMetadataItem);
+
+      setValue("file", null);
+      fileUploadRef.current?.clear();
       setShowMetadataModal(false);
     } catch (error) {
       console.error("Error submitting metadata:", error);
@@ -121,12 +126,7 @@ export default function AddMetadataModal({
     { label: "Lake Edward", value: "Lake Edward" },
   ];
 
-  const handleFileUpload = (e: FileUploadHandlerEvent) => {
-    if (e.files && e.files[0]) {
-      setValue("file", e.files[0]);
-      clearErrors("file");
-    }
-  };
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto">
@@ -216,16 +216,27 @@ export default function AddMetadataModal({
           name="file"
           rules={{ required: "Please select a file" }}
           render={({ field }) => (
-            <FileUpload
-              id="file"
-              name="file"
-              accept=".pdf, .xls, .xlsx"
-              mode="basic"
-              auto
-              customUpload
-              uploadHandler={handleFileUpload}
-              chooseLabel="Choose File"
-            />
+            <div className="flex flex-col gap-2">
+              <FileUpload
+                ref={fileUploadRef}
+                id="file"
+                name="file"
+                accept=".pdf, .xls, .xlsx"
+                mode="basic"
+                onSelect={(e) => {
+                  if (e.files && e.files.length > 0) {
+                    field.onChange(e.files[0]);
+                    clearErrors("file");
+                  }
+                }}
+                chooseLabel="Choose File"
+              />
+              {field.value instanceof File && (
+                <span className="text-sm text-gray-600">
+                  Selected: {field.value.name}
+                </span>
+              )}
+            </div>
           )}
         />
         {errors.file && (

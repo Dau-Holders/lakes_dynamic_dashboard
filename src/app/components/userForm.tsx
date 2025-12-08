@@ -31,6 +31,8 @@ const UserForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
 
+  const fileUploadRef = useRef<FileUpload>(null);
+
   const { handleSubmit, control, setValue } = useForm<{
     username: string;
     email: string;
@@ -66,12 +68,7 @@ const UserForm: React.FC = () => {
 
     try {
       setLoading(true);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error updating user details",
-        life: 3000,
-      });
+      
       const response = await privateApi.patch(
         `/profile/update/${user?.username}/`,
         formData,
@@ -81,25 +78,29 @@ const UserForm: React.FC = () => {
           },
         }
       );
+      
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Profile updated successfully",
+        life: 3000,
+      });
       console.log(response);
+      setValue("photo", null);
+      fileUploadRef.current?.clear();
     } catch (error) {
       console.error("Error submitting form data:", error);
-      // toast.current?.show({
-      //   severity: "error",
-      //   summary: "Error",
-      //   detail: "Error updating user details",
-      //   life: 3000,
-      // });
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Error updating user details",
+        life: 3000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFileUpload = (e: FileUploadHandlerEvent) => {
-    if (e.files && e.files?.[0] instanceof File) {
-      setValue("photo", e.files[0]);
-    }
-  };
 
   return (
     <div className="p-6">
@@ -307,14 +308,31 @@ const UserForm: React.FC = () => {
                   Upload a profile photo.
                 </span>
               </div>
-              <FileUpload
-                id="photo"
+              <Controller
                 name="photo"
-                accept="image/*"
-                mode="basic"
-                customUpload
-                uploadHandler={handleFileUpload}
-                chooseLabel="Choose Photo"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex flex-col gap-2">
+                    <FileUpload
+                      ref={fileUploadRef}
+                      id="photo"
+                      name="photo"
+                      accept="image/*"
+                      mode="basic"
+                      onSelect={(e) => {
+                        if (e.files && e.files.length > 0) {
+                          field.onChange(e.files[0]);
+                        }
+                      }}
+                      chooseLabel="Choose Photo"
+                    />
+                    {field.value instanceof File && (
+                      <span className="text-sm text-gray-600">
+                        Selected: {field.value.name}
+                      </span>
+                    )}
+                  </div>
+                )}
               />
             </div>
           </div>
