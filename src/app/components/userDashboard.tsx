@@ -27,7 +27,7 @@ export default function UserDashboard() {
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* Mobile Header */}
       <div className="md:hidden p-4 bg-white flex items-center justify-between border-b shadow-sm">
-        <span className="font-bold text-xl">AGLA Dashboard</span>
+        <span className="font-bold text-xl">ALH Dashboard</span>
         <Button
           icon="pi pi-bars"
           className="p-button-text"

@@ -19,7 +19,7 @@ export default function AppSideBar() {
       template: () => {
         return (
           <span className="inline-flex align-items-center gap-1 px-2 py-2">
-            <span className="font-medium text-xl">AGLA</span>
+            <span className="font-medium text-xl">ALH</span>
           </span>
         );
       },

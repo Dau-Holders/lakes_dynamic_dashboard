@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* Mobile Header */}
       <div className="md:hidden p-4 bg-white flex items-center justify-between border-b shadow-sm sticky top-0 z-10">
-        <span className="font-bold text-xl">AGLA</span>
+        <span className="font-bold text-xl">ALH</span>
         <Button
           icon="pi pi-bars"
           className="p-button-text"
