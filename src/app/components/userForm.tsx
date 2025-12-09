@@ -59,9 +59,14 @@ const UserForm: React.FC = () => {
     const formData = new FormData();
 
     Object.keys(data).forEach((key) => {
-      if (key === "photo" && data[key] instanceof File) {
-        formData.append(key, data[key], data[key].name);
-      } else {
+      if (key === "photo") {
+        // Only append photo if it's a valid File
+        if (data[key] instanceof File) {
+          formData.append(key, data[key], data[key].name);
+        }
+        // Skip appending if photo is null/undefined
+      } else if (data[key] != null) {
+        // Only append non-null values for other fields
         formData.append(key, data[key]);
       }
     });
