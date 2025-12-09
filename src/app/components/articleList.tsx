@@ -45,8 +45,8 @@ export default function ArticleList() {
     : iconsBodyTemplate;
 
   return (
-    <div className="bg-white p-6 rounded-lg m-4">
-      <div className="flex justify-between mb-4">
+    <div className="bg-white p-4 md:p-6 rounded-lg m-2 md:m-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <p className="font-bold text-xl">Publications</p>
         <Button
           icon="pi pi-plus"
@@ -56,6 +56,7 @@ export default function ArticleList() {
             e.stopPropagation();
             handleShowModal();
           }}
+          className="w-full sm:w-auto"
           outlined
         />
       </div>
@@ -67,9 +68,11 @@ export default function ArticleList() {
         loading={loading}
         emptyMessage="No publications found"
         filterDisplay="menu"
+        responsiveLayout="stack"
+        breakpoint="960px"
         header={
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div className="w-full md:w-auto">
               <Dropdown
                 value={selectedLake}
                 options={lakes}
@@ -96,7 +99,8 @@ export default function ArticleList() {
                 disabled={!selectedLake}
               />
             </div>
-            <SearchInput
+            <div className="w-full md:w-auto">
+              <SearchInput
               placeholder="Search publications..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
@@ -113,7 +117,8 @@ export default function ArticleList() {
                   : articles;
                 setFilteredArticles(filteredData);
               }}
-            />
+              />
+            </div>
           </div>
         }
       >

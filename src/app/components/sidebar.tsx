@@ -116,19 +116,22 @@ export default function AppSideBar() {
   const modalHeader = AddArticleModalTitle;
 
   return (
-    <div className="h-full min-w-64 bg-white flex flex-col justify-between">
-      <Menu model={items} className="w-full md:w-15rem border-none" />
+    <div className="h-screen min-w-64 bg-white flex flex-col justify-between overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <Menu model={items} className="w-full md:w-15rem border-none" />
+      </div>
       
       {/* User Profile Section */}
-      <div className="p-4 border-t border-gray-100 mb-4">
+      <div className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-3">
           <Avatar 
-            label={user?.first_name?.charAt(0) || user?.email?.charAt(0)} 
-            icon={!user?.first_name && "pi pi-user"} 
+            image={user?.photo || undefined}
+            label={!user?.photo ? (user?.first_name?.charAt(0) || user?.email?.charAt(0)) : undefined} 
+            icon={!user?.photo && !user?.first_name ? "pi pi-user" : undefined} 
             className="p-overlay-badge" 
             shape="circle" 
             size="normal"
-            style={{ backgroundColor: '#2196F3', color: '#ffffff' }}
+            style={{ backgroundColor: user?.photo ? 'transparent' : '#2196F3', color: '#ffffff' }}
           />
           <div className="flex flex-col overflow-hidden">
             <span className="font-semibold text-sm truncate text-gray-900">

@@ -2,7 +2,6 @@
 import AddProjectModal from "@/app/components/addProjectModal";
 import AppMenuBar from "@/app/components/appMenuBar";
 import ProjectList from "@/app/components/projectList";
-import AppSideBar from "@/app/components/sidebar";
 import { useAuthContext } from "@/app/contexts/authContext";
 import useRefreshToken from "@/app/hooks/useRefreshToken";
 import { sampleProjects } from "@/app/utils/sampleArticles";
@@ -75,10 +74,8 @@ export default function Page() {
   const modalHeader = AddProjectModalTitle;
 
   return (
-    <div className="flex">
+    <div className="container mx-auto">
       <Toast ref={toast} position="top-center" />
-      <AppSideBar />
-      <div className="container mx-auto">
         <div className="justify-end flex px-6">
           
         </div>
@@ -101,7 +98,6 @@ export default function Page() {
             addProject={addProject}
           />
         </Dialog>
-      </div>
     </div>
   );
 }

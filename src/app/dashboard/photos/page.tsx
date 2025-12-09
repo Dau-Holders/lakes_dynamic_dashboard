@@ -2,7 +2,6 @@
 import AddPhotoModal from "@/app/components/addPhotoModal";
 import AppMenuBar from "@/app/components/appMenuBar";
 import PhotoList from "@/app/components/photoList";
-import AppSideBar from "@/app/components/sidebar";
 import { useAuthContext } from "@/app/contexts/authContext";
 import useRefreshToken from "@/app/hooks/useRefreshToken";
 import { samplePhotos } from "@/app/utils/sampleArticles";
@@ -63,10 +62,8 @@ export default function Page() {
   const modalHeader = AddPhotoModalTitle;
 
   return (
-    <div className="flex">
+    <div className="container mx-auto">
       <Toast ref={toast} position="top-center" />
-      <AppSideBar />
-      <div className="container mx-auto">
         <div className="justify-end flex px-6">
           
         </div>
@@ -88,7 +85,6 @@ export default function Page() {
             addPhoto={addPhoto}
           />
         </Dialog>
-      </div>
     </div>
   );
 }

@@ -2,13 +2,11 @@
 import { useArticles } from "../../contexts/articlesContext";
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
-import AppSideBar from "../../components/sidebar";
 import ArticleList from "../../components/articleList";
 import AddArticleModal from "../../components/addArticleModal";
 
 export default function UserDashboard() {
   const { showArticlesModal, dispatch } = useArticles();
-  const [showSidebar, setShowSidebar] = useState<boolean>(true);
 
   function AddArticleModalTitle() {
     return (
@@ -21,13 +19,7 @@ export default function UserDashboard() {
   const modalHeader = AddArticleModalTitle;
 
   return (
-    <div className="flex">
-      {showSidebar ? (
-        <div className="">
-          <AppSideBar />
-        </div>
-      ) : null}
-      <div className="container mx-auto">
+    <div className="container mx-auto">
         <ArticleList />
         <Dialog
           visible={showArticlesModal}
@@ -37,7 +29,6 @@ export default function UserDashboard() {
         >
           <AddArticleModal />
         </Dialog>
-      </div>
     </div>
   );
 }

@@ -53,10 +53,10 @@ export default function MetadataList({
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg m-4">
-      <div className="flex justify-between mb-4">
+    <div className="bg-white p-4 md:p-6 rounded-lg m-2 md:m-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <p className="font-bold text-xl">Metadata</p>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button
             icon="pi pi-download"
             label="Export"
@@ -81,12 +81,13 @@ export default function MetadataList({
               link.click();
               document.body.removeChild(link);
             }}
-            className="p-button-secondary"
+            className="p-button-secondary w-full sm:w-auto"
           />
           <Button
             icon="pi pi-plus"
             label="Add Metadata"
             onClick={showMetadataModal}
+            className="w-full sm:w-auto"
             outlined
           />
         </div>
@@ -103,9 +104,11 @@ export default function MetadataList({
         sortMode="multiple"
         removableSort
         globalFilterFields={["title", "period", "lake", "status"]}
+        responsiveLayout="stack"
+        breakpoint="960px"
         header={
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div className="w-full md:w-auto">
               <Dropdown
                 value={selectedLake}
                 options={lakes}
@@ -131,7 +134,8 @@ export default function MetadataList({
                 disabled={!selectedLake}
               />
             </div>
-            <SearchInput
+            <div className="w-full md:w-auto">
+              <SearchInput
               placeholder="Search metadata..."
               onSearch={(value) => {
                 const filtered = value.toLowerCase();
@@ -146,7 +150,8 @@ export default function MetadataList({
                   : metadataList;
                 setFilteredMetadata(filteredData);
               }}
-            />
+              />
+            </div>
           </div>
         }
       >
