@@ -7,7 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import SearchInput from "./SearchInput";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
 import Link from "next/link";
 import { useAuthContext } from "../contexts/authContext";
 
@@ -297,7 +297,6 @@ function actionsAdminBodyTemplate(
   removeFromProjectList: (value: string) => void,
   loading: boolean
 ) {
-  const privateApi = useRefreshToken();
   const toast = useRef<Toast>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { user } = useAuthContext();

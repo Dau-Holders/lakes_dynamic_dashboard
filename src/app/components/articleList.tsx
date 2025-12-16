@@ -7,7 +7,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useArticles } from "../contexts/articlesContext";
 import Link from "next/link";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
 import { Toast } from "primereact/toast";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "../contexts/authContext";
@@ -275,7 +275,6 @@ function approvedBodyTemplate(rowData: any) {
 
 function iconsBodyTemplate(rowData: any) {
   const { dispatch } = useArticles();
-  const privateApi = useRefreshToken();
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const toast = useRef<Toast>(null);
 
@@ -343,7 +342,6 @@ function iconsBodyTemplate(rowData: any) {
 
 function iconsAdminBodyTemplate(rowData: any) {
   const { dispatch } = useArticles();
-  const privateApi = useRefreshToken();
   const [loading, setLoading] = useState<boolean>(false);
   const toast = useRef<Toast>(null);
   const { user } = useAuthContext();

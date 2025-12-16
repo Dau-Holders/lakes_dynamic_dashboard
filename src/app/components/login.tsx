@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
 import { api } from "../lib/api";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
 import { useAuthContext } from "../contexts/authContext";
 
 interface LoginInterface {
@@ -26,7 +26,7 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
   const messages = useRef<Messages>(null);
-  const privateApi = useRefreshToken();
+  // privateApi is now imported globally
   const { dispatch } = useAuthContext();
 
   async function onSubmit(data: LoginInterface) {

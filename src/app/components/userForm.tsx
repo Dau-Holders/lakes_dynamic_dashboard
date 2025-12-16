@@ -5,12 +5,14 @@ import { Button } from "primereact/button";
 import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
 import { useAuthContext } from "../contexts/authContext";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
 import { Toast } from "primereact/toast";
 
 const genderOptions = [
   { label: "Male", value: "male" },
   { label: "Female", value: "female" },
+  { label: "Other", value: "other" },
+  { label: "Prefer not to say", value: "prefer_not_to_say" },
 ];
 
 interface UserFormValues {
@@ -26,7 +28,7 @@ interface UserFormValues {
 
 const UserForm: React.FC = () => {
   const { user } = useAuthContext();
-  const privateApi = useRefreshToken();
+  // privateApi is now imported globally
 
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
@@ -294,7 +296,6 @@ const UserForm: React.FC = () => {
                   <InputText
                     id="organization"
                     {...field}
-                    required
                     className="p-inputtext mt-1 p-2 border border-gray-300 rounded-md w-1/2"
                   />
                 )}

@@ -106,7 +106,7 @@ function AuthContextProvider({ children }: AuthContextProviderProps) {
     }
 
     fetchUser();
-  }, []);
+  }, [user, privateApi]);
 
   const value = {
     ...state,

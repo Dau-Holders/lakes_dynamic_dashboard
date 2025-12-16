@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -7,7 +7,8 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { useAuthContext } from "../contexts/authContext";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
+import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { MetadataPayload } from "../utils/types";
 import { nanoid } from "nanoid";
@@ -32,7 +33,7 @@ export default function AddMetadataModal({
 }: MetadataModalProps) {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const privateApi = useRefreshToken();
+  // privateApi is now imported globally
 
   const messages = useRef<Messages>(null);
   const fileUploadRef = useRef<FileUpload>(null);
@@ -116,15 +117,21 @@ export default function AddMetadataModal({
     }
   };
 
-  const greatLakes = [
-    { label: "Lake Victoria", value: "Lake Victoria" },
-    { label: "Lake Tanganyika", value: "Lake Tanganyika" },
-    { label: "Lake Malawi/Niassa/Nyasa", value: "Lake Malawi/Niassa/Nyasa" },
-    { label: "Lake Turkana", value: "Lake Turkana" },
-    { label: "Lake Albert", value: "Lake Albert" },
-    { label: "Lake Kivu", value: "Lake Kivu" },
-    { label: "Lake Edward", value: "Lake Edward" },
-  ];
+  const { lakes: greatLakes, loading: lakesLoading, error: lakesError } = useLakes();
+
+  // Show error message if lakes failed to load
+  useEffect(() => {
+    if (lakesError) {
+      messages.current?.show([
+        {
+          severity: "warn",
+          detail: "Failed to load lakes. Please refresh the page.",
+          sticky: true,
+          closable: true,
+        },
+      ]);
+    }
+  }, [lakesError]);
 
 
 
@@ -199,7 +206,8 @@ export default function AddMetadataModal({
               className="w-full p-dropdown-sm"
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
-              placeholder="Select a Lake"
+              placeholder={lakesLoading ? "Loading lakes..." : "Select a Lake"}
+              disabled={lakesLoading}
             />
           )}
         />

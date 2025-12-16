@@ -5,7 +5,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import Link from "next/link";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
 import { useRef, useState, useEffect } from "react";
 import SearchInput from "./SearchInput";
 import { Dropdown } from "primereact/dropdown";
@@ -302,7 +302,6 @@ function iconsAdminBodyTemplate(
   removeFromMetadataList: (value: string) => void,
   loading: boolean
 ) {
-  const privateApi = useRefreshToken();
   const toast = useRef<Toast>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 

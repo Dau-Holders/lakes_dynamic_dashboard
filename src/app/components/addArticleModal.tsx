@@ -10,7 +10,8 @@ import { FileUpload, FileUploadHandlerEvent } from "primereact/fileupload";
 import { useArticles } from "../contexts/articlesContext";
 import { nanoid } from "nanoid";
 import { useAuthContext } from "../contexts/authContext";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { privateApi } from "../lib/api";
+import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { Article } from "../utils/types";
 import { Dropdown } from "primereact/dropdown";
@@ -21,7 +22,7 @@ interface ArticleFormValues {
   abstract: string;
   publicationDate: Date;
   keywords: string;
-  selectedLakes: string;
+  selectedLakes: string[];
   file: File | null;
   type: string;
 }
@@ -35,7 +36,7 @@ export default function AddArticleModal() {
   const { dispatch, selectedArticle, articles } = useArticles();
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const privateApi = useRefreshToken();
+  // privateApi is now imported globally
   const messages = useRef<Messages>(null);
   const fileUploadRef = useRef<FileUpload>(null);
 
@@ -61,7 +62,9 @@ export default function AddArticleModal() {
           abstract: selectedArticleDetails.abstract,
           publicationDate: new Date(selectedArticleDetails.year),
           keywords: selectedArticleDetails.keywords,
-          selectedLakes: selectedArticleDetails.lake,
+          selectedLakes: Array.isArray(selectedArticleDetails.lake) 
+            ? selectedArticleDetails.lake 
+            : [selectedArticleDetails.lake],
           file: null,
           type: selectedArticleDetails.type || "published",
         }
@@ -71,7 +74,7 @@ export default function AddArticleModal() {
           abstract: "",
           publicationDate: new Date(),
           keywords: "",
-          selectedLakes: "",
+          selectedLakes: [],
           file: null,
           type: "published",
         },
@@ -89,7 +92,12 @@ export default function AddArticleModal() {
       setValue("abstract", selectedArticleDetails.abstract);
       setValue("publicationDate", new Date(selectedArticleDetails.year));
       setValue("keywords", selectedArticleDetails.keywords);
-      setValue("selectedLakes", selectedArticleDetails.lake);
+      setValue(
+        "selectedLakes",
+        Array.isArray(selectedArticleDetails.lake)
+          ? selectedArticleDetails.lake
+          : [selectedArticleDetails.lake]
+      );
     }
   }, [selectedArticleDetails, setValue]);
 
@@ -124,7 +132,10 @@ export default function AddArticleModal() {
       formData.append("abstract", data.abstract);
       formData.append("year", data.publicationDate.getFullYear().toString());
       formData.append("keywords", data.keywords);
-      formData.append("lake", data.selectedLakes);
+      // Append each lake separately for Django REST Framework SlugRelatedField(many=True)
+      data.selectedLakes.forEach((lakeName) => {
+        formData.append("lake", lakeName);
+      });
       formData.append("uploader", user.username);
       formData.append("author", authors);
       formData.append("type", data.type);
@@ -151,7 +162,7 @@ export default function AddArticleModal() {
           abstract: data.abstract,
           year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
-          lake: [data.selectedLakes],
+          lake: data.selectedLakes,
           file: articleResponse.data?.file,
         };
 
@@ -176,7 +187,7 @@ export default function AddArticleModal() {
           abstract: data.abstract,
           year: data.publicationDate.getFullYear().toString(),
           keywords: data.keywords,
-          lake: [data.selectedLakes],
+          lake: data.selectedLakes,
           is_published: false,
           status: "pending",
           file: articleResponse.data?.file,
@@ -208,15 +219,23 @@ export default function AddArticleModal() {
     }
   };
 
-  const greatLakes = [
-    { label: "Lake Victoria", value: "Lake Victoria" },
-    { label: "Lake Tanganyika", value: "Lake Tanganyika" },
-    { label: "Lake Malawi/Niassa/Nyasa", value: "Lake Malawi/Niassa/Nyasa" },
-    { label: "Lake Turkana", value: "Lake Turkana" },
-    { label: "Lake Albert", value: "Lake Albert" },
-    { label: "Lake Kivu", value: "Lake Kivu" },
-    { label: "Lake Edward", value: "Lake Edward" },
-  ];
+
+  const { lakes: greatLakes, loading: lakesLoading, error: lakesError } = useLakes();
+
+  // Show error message if lakes failed to load
+  useEffect(() => {
+    if (lakesError) {
+      messages.current?.show([
+        {
+          severity: "warn",
+          detail: "Failed to load lakes. Please refresh the page.",
+          sticky: true,
+          closable: true,
+        },
+      ]);
+    }
+  }, [lakesError]);
+
 
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
@@ -344,12 +363,15 @@ export default function AddArticleModal() {
           name="selectedLakes"
           rules={{ required: "At least one lake must be selected" }}
           render={({ field }) => (
-            <Dropdown
+            <MultiSelect
               id="lakes"
               options={greatLakes}
               className="w-full p-multiselect-sm"
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
+              display="chip"
+              placeholder={lakesLoading ? "Loading lakes..." : "Select lakes"}
+              disabled={lakesLoading}
             />
           )}
         />
