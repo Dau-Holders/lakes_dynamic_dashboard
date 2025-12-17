@@ -11,6 +11,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { ProjectPayload } from "../utils/types";
 import { nanoid } from "nanoid";
+import { formatAPIError } from "../utils/errorHandling";
 
 interface ProjectFormValues {
   title: string;
@@ -85,12 +86,14 @@ export default function AddProjectModal({
       addProject(newProjectItem);
       setShowProjectModal(false);
     } catch (error) {
+      console.error("Error submitting project:", error);
+      const errorMessage = formatAPIError(error);
       messages.current?.show([
         {
           severity: "error",
-          detail: "An unexpected error occurred. Please try again.",
+          detail: errorMessage,
           sticky: true,
-          closable: false,
+          closable: true,
         },
       ]);
     } finally {
@@ -124,11 +127,13 @@ export default function AddProjectModal({
         <InputText
           id="title"
           className="w-full p-inputtext-sm"
+          maxLength={200}
           {...register("title", { required: "Title is required" })}
         />
         {errors.title && (
           <p className="text-red-500 mt-1">{errors.title.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 200 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="description" className="block font-medium mb-2">
@@ -138,6 +143,7 @@ export default function AddProjectModal({
           id="description"
           rows={3}
           className="w-full p-inputtextarea-sm"
+          maxLength={1000}
           {...register("description", {
             required: "Description is required",
           })}
@@ -145,6 +151,7 @@ export default function AddProjectModal({
         {errors.description && (
           <p className="text-red-500 mt-1">{errors.description.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 1000 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="longitude" className="block font-medium mb-2">

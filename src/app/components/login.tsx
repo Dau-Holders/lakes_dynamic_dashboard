@@ -11,6 +11,7 @@ import { Messages } from "primereact/messages";
 import { api } from "../lib/api";
 import { privateApi } from "../lib/api";
 import { useAuthContext } from "../contexts/authContext";
+import { formatAPIError } from "../utils/errorHandling";
 
 interface LoginInterface {
   email: string;
@@ -40,32 +41,15 @@ export default function Login() {
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
-      if (error.response?.data.detail && messages.current) {
-        messages.current.show([
-          {
-            severity: "info",
-            detail: error.response?.data.detail,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      } else {
-        messages.current?.show([
-          {
-            severity: "info",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      const errorMessage = formatAPIError(error);
+      messages.current?.show([
+        {
+          severity: "error",
+          detail: errorMessage,
+          sticky: true,
+          closable: true,
+        },
+      ]);
     } finally {
       setLoading(false);
     }

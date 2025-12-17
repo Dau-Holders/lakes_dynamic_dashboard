@@ -10,6 +10,7 @@ import { useAuthContext } from "../contexts/authContext";
 import { privateApi } from "../lib/api";
 import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
+import { formatAPIError } from "../utils/errorHandling";
 
 interface PhotoFormValues {
   capture_date: Date | null;
@@ -86,12 +87,13 @@ export default function AddPhotoModal({
       setShowPhotoModal(false);
     } catch (error) {
       console.error("Error submitting photo:", error);
+      const errorMessage = formatAPIError(error);
       messages.current?.show([
         {
           severity: "error",
-          detail: "An unexpected error occurred. Please try again.",
+          detail: errorMessage,
           sticky: true,
-          closable: false,
+          closable: true,
         },
       ]);
     } finally {
@@ -132,6 +134,7 @@ export default function AddPhotoModal({
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
               dateFormat="yy-mm-dd"
+              showIcon
               className="w-full p-inputtext-sm"
               placeholder="Select a capture date"
             />
@@ -208,11 +211,13 @@ export default function AddPhotoModal({
           id="description"
           rows={3}
           className="w-full p-inputtextarea-sm"
+          maxLength={500}
           {...register("description", { required: "Description is required" })}
         />
         {errors.description && (
           <p className="text-red-500 mt-1">{errors.description.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 500 characters</small>
       </div>
       <div className="mt-4 w-full">
         <Button

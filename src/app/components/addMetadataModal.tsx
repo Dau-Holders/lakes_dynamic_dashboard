@@ -12,6 +12,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { MetadataPayload } from "../utils/types";
 import { nanoid } from "nanoid";
+import { formatAPIError } from "../utils/errorHandling";
 
 interface MetadataFormValues {
   title: string;
@@ -104,12 +105,13 @@ export default function AddMetadataModal({
       setShowMetadataModal(false);
     } catch (error) {
       console.error("Error submitting metadata:", error);
+      const errorMessage = formatAPIError(error);
       messages.current?.show([
         {
           severity: "error",
-          detail: "An unexpected error occurred. Please try again.",
+          detail: errorMessage,
           sticky: true,
-          closable: false,
+          closable: true,
         },
       ]);
     } finally {
@@ -145,11 +147,13 @@ export default function AddMetadataModal({
         <InputText
           id="title"
           className="w-full p-inputtext-sm"
+          maxLength={200}
           {...register("title", { required: "Title is required" })}
         />
         {errors.title && (
           <p className="text-red-500 mt-1">{errors.title.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 200 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="email" className="block mb-2">
@@ -158,6 +162,7 @@ export default function AddMetadataModal({
         <InputText
           id="email"
           className="w-full p-inputtext-sm"
+          maxLength={100}
           {...register("email", { required: "Email is required" })}
         />
         {errors.email && (
@@ -171,11 +176,13 @@ export default function AddMetadataModal({
         <InputText
           id="period"
           className="w-full p-inputtext-sm"
+          maxLength={50}
           {...register("period", { required: "Period is required" })}
         />
         {errors.period && (
           <p className="text-red-500 mt-1">{errors.period.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 50 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="description" className="block font-medium mb-2">

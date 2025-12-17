@@ -15,6 +15,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { Article } from "../utils/types";
 import { Dropdown } from "primereact/dropdown";
+import { formatAPIError } from "../utils/errorHandling";
 
 interface ArticleFormValues {
   title: string;
@@ -203,17 +204,16 @@ export default function AddArticleModal() {
       setSelectedFileName("");
       fileUploadRef.current?.clear();
     } catch (error) {
+      console.error("Error submitting article:", error);
+      const errorMessage = formatAPIError(error);
       messages.current?.show([
         {
-          severity: "info",
-          detail: "An unexpected error occurred. Please try again.",
+          severity: "error",
+          detail: errorMessage,
           sticky: true,
-          closable: false,
+          closable: true,
         },
       ]);
-      setTimeout(() => {
-        messages.current?.clear();
-      }, 5000);
     } finally {
       setLoading(false);
     }
@@ -251,11 +251,13 @@ export default function AddArticleModal() {
         <InputText
           id="title"
           className="w-full p-inputtext-sm"
+          maxLength={300}
           {...register("title", { required: "Title is required" })}
         />
         {errors.title && (
           <p className="text-red-500 mt-1">{errors.title.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 300 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="type" className="block mb-2">
@@ -326,11 +328,13 @@ export default function AddArticleModal() {
           id="abstract"
           rows={3}
           className="w-full p-inputtextarea-sm"
+          maxLength={2000}
           {...register("abstract", { required: "Abstract is required" })}
         />
         {errors.abstract && (
           <p className="text-red-500 mt-1">{errors.abstract.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 2000 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="date" className="block font-medium mb-2">
@@ -343,10 +347,12 @@ export default function AddArticleModal() {
           render={({ field }) => (
             <Calendar
               id="date"
-              view="year"
+              dateFormat="yy-mm-dd"
+              showIcon
               className="w-full p-calendar-sm"
               value={field.value}
               onChange={(e) => field.onChange(e.value)}
+              placeholder="Select publication date"
             />
           )}
         />
@@ -386,11 +392,13 @@ export default function AddArticleModal() {
         <InputText
           id="keywords"
           className="w-full p-inputtext-sm"
+          maxLength={100}
           {...register("keywords", { required: "Keywords are required" })}
         />
         {errors.keywords && (
           <p className="text-red-500 mt-1">{errors.keywords.message}</p>
         )}
+        <small className="text-gray-500 mt-1 block">Maximum 100 characters</small>
       </div>
       <div className="mb-4">
         <label htmlFor="file" className="block font-medium mb-2">
