@@ -11,6 +11,8 @@ import { useRef } from "react";
 import { Messages } from "primereact/messages";
 import { AxiosError } from "axios";
 import { api } from "../lib/api";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface SignUpInterface {
   username: string;
@@ -20,6 +22,15 @@ interface SignUpInterface {
   password: string;
   re_password: string;
 }
+
+const SIGNUP_FIELDS = [
+  "username",
+  "first_name",
+  "last_name",
+  "email",
+  "password",
+  "re_password",
+] as const;
 
 export default function Page() {
   const {
@@ -39,51 +50,20 @@ export default function Page() {
   async function onSubmit(data: SignUpInterface) {
     setLoading(true);
     try {
-      const response = await api.post("/auth/users/", data);
+      await api.post("/auth/users/", data);
       reset();
-      messages.current?.show([
-        {
-          severity: "success",
-          detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
-          sticky: false,
-          life: 5000,
-          closable: true,
-        },
-      ]);
+      showMessage(
+        messages,
+        "success",
+        `Registration successful! Click the link sent to ${data.email} to activate your account`
+      );
     } catch (error: AxiosError | any) {
-      if (error.response?.data) {
-        const serverErrors = error.response.data;
-        Object.keys(serverErrors).forEach((field) => {
-          const messages = serverErrors[field];
-          messages.forEach((message: string) => {
-            setError(field as keyof SignUpInterface, {
-              type: "server",
-              message,
-            });
-          });
-        });
-        // Show general error message
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "Registration failed. Please check the form for errors.",
-            sticky: false,
-            life: 5000,
-            closable: true,
-          },
-        ]);
-      } else {
-        // Show network/server error
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "Network error. Please try again later.",
-            sticky: false,
-            life: 5000,
-            closable: true,
-          },
-        ]);
-      }
+      const applied = applyAPIFieldErrors(error, setError, SIGNUP_FIELDS);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Registration failed. Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }

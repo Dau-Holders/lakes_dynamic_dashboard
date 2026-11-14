@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, Path } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
@@ -15,7 +15,8 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { Article } from "../utils/types";
 import { Dropdown } from "primereact/dropdown";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface ArticleFormValues {
   title: string;
@@ -27,6 +28,15 @@ interface ArticleFormValues {
   file: File | null;
   type: string;
 }
+
+// Form fields that can show backend validation errors inline.
+const ARTICLE_FIELDS: readonly Path<ArticleFormValues>[] = ["title", "authors", "abstract", "publicationDate", "keywords", "selectedLakes", "file", "type"];
+// Backend field name -> form field name, where they differ.
+const ARTICLE_FIELD_MAP: Partial<Record<string, Path<ArticleFormValues>>> = {
+  author: "authors",
+  lake: "selectedLakes",
+  year: "publicationDate",
+};
 
 const publicationTypes = [
   { label: "Published", value: "published" },
@@ -126,6 +136,7 @@ export default function AddArticleModal() {
 
     try {
       setLoading(true);
+      messages.current?.clear();
       if (!user) return;
       const formData = new FormData();
       const authors = data.authors.map((author) => author.name).join(",");
@@ -205,15 +216,12 @@ export default function AddArticleModal() {
       fileUploadRef.current?.clear();
     } catch (error) {
       console.error("Error submitting article:", error);
-      const errorMessage = formatAPIError(error);
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: errorMessage,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      const applied = applyAPIFieldErrors(error, setError, ARTICLE_FIELDS, ARTICLE_FIELD_MAP);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }
@@ -307,7 +315,7 @@ export default function AddArticleModal() {
         ))}
         {errors.authors && (
           <p className="text-red-500 mt-1 mb-2">
-            {errors?.authors[0]?.name?.message}
+            {errors.authors.message ?? errors.authors[0]?.name?.message}
           </p>
         )}
         <Button

@@ -8,6 +8,12 @@ import { Messages } from "primereact/messages";
 
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
+import {
+  applyAPIFieldErrors,
+  bannerMessage,
+  isBadLinkError,
+} from "@/app/utils/errorHandling";
+import { showMessage } from "@/app/utils/showMessage";
 
 interface ResetPasswordInterface {
   new_password: string;
@@ -25,10 +31,9 @@ export default function Page({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<ResetPasswordInterface>();
-
-  console.log(params);
 
   async function onSubmit(data: ResetPasswordInterface) {
     setLoading(true);
@@ -38,51 +43,21 @@ export default function Page({
         token: params.token,
         new_password: data.new_password,
       });
-
-      if (messages.current) {
-        messages.current.show([
-          {
-            severity: "success",
-            detail: "Password has been reset successfully.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-          router.push("/");
-        }, 5000);
-      }
+      showMessage(
+        messages,
+        "success",
+        "Password has been reset successfully. Redirecting to login..."
+      );
+      setTimeout(() => router.push("/"), 3000);
     } catch (error: AxiosError | any) {
-      console.log(error.response);
-      if (error.response?.data.new_password && messages.current) {
-        messages.current.show([
-          {
-            severity: "error",
-            detail: error.response?.data.new_password,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      } else {
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      const applied = applyAPIFieldErrors(error, setError, ["new_password"]);
+      showMessage(
+        messages,
+        "error",
+        isBadLinkError(applied)
+          ? "This password reset link is invalid or has expired. Please request a new one."
+          : bannerMessage(applied, "Please choose a different password.")
+      );
     } finally {
       setLoading(false);
     }

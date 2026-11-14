@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
+import { formatAPIError } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 import { api } from "../lib/api";
 
 interface ResetPasswordInterface {
@@ -25,49 +27,11 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       await api.post("/auth/users/reset_password/", data);
-
-      if (messages.current) {
-        messages.current.show([
-          {
-            severity: "success",
-            detail: "Password reset email sent successfully.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      showMessage(messages, "success", "Password reset email sent successfully.", {
+        life: 5000,
+      });
     } catch (error: AxiosError | any) {
-      if (error.response?.data.detail && messages.current) {
-        messages.current.show([
-          {
-            severity: "error",
-            detail: error.response?.data.detail,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      } else {
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      showMessage(messages, "error", formatAPIError(error));
     } finally {
       setLoading(false);
     }

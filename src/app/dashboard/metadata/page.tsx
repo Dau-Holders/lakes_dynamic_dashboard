@@ -9,6 +9,8 @@ import { AxiosError } from "axios";
 import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
+import { formatAPIError } from "@/app/utils/errorHandling";
+import { showMessage } from "@/app/utils/showMessage";
 
 export default function Page() {
   const [showMetadataModal, setShowMetadataModal] = useState(false);
@@ -55,31 +57,7 @@ export default function Page() {
       );
       setMetadataList(newMetadataList);
     } catch (error: AxiosError | any) {
-      if (error.response?.data.detail && toast.current) {
-        toast.current.show([
-          {
-            severity: "error",
-            detail: error.response?.data.detail,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-        setTimeout(() => {
-          toast.current?.clear();
-        }, 5000);
-      } else {
-        toast.current?.show([
-          {
-            severity: "error",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-        setTimeout(() => {
-          toast.current?.clear();
-        }, 5000);
-      }
+      showMessage(toast, "error", formatAPIError(error));
     } finally {
       setSingleMetadataLoading(false);
     }
