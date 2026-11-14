@@ -22,6 +22,11 @@ export interface ParsedAPIError {
   status?: number;
 }
 
+export interface AppliedAPIError extends ParsedAPIError {
+  /** "Field: message" lines for errors that don't match any form field. */
+  unmatched: string[];
+}
+
 const NETWORK_MESSAGE =
   "Unable to reach the server. Please check your connection and try again.";
 const FALLBACK_MESSAGE = "An unexpected error occurred. Please try again.";
@@ -47,14 +52,19 @@ function toMessages(value: unknown): string[] {
 }
 
 function collectFieldErrors(source: Record<string, unknown>): Record<string, string[]> {
-  const out: Record<string, string[]> = {};
+  const errorsByField: Record<string, string[]> = {};
   for (const [field, value] of Object.entries(source)) {
     if (NON_FIELD_KEYS.has(field)) continue;
-    // Flatten nested serializer errors: { authors: { 0: { name: [...] } } } -> authors
+    // Nested serializer ({ user: { email: [...] } }): report under the inner field names.
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      Object.assign(errorsByField, collectFieldErrors(value as Record<string, unknown>));
+      continue;
+    }
+    // Lists of nested errors ({ authors: [{ name: [...] }] }) stay under the list's name.
     const msgs = toMessages(value);
-    if (msgs.length) out[field] = msgs;
+    if (msgs.length) errorsByField[field] = msgs;
   }
-  return out;
+  return errorsByField;
 }
 
 /**
@@ -102,7 +112,7 @@ export function parseAPIError(error: any): ParsedAPIError {
   return { message: FALLBACK_MESSAGE, fieldErrors: {}, status };
 }
 
-function humanize(field: string): string {
+function fieldLabel(field: string): string {
   const s = field.replace(/_/g, " ");
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -114,7 +124,7 @@ function humanize(field: string): string {
 export function formatAPIError(error: any): string {
   const { message, fieldErrors } = parseAPIError(error);
   const lines = Object.entries(fieldErrors).map(
-    ([field, msgs]) => `${humanize(field)}: ${msgs.join(" ")}`
+    ([field, msgs]) => `${fieldLabel(field)}: ${msgs.join(" ")}`
   );
   return lines.length ? lines.join("\n") : message;
 }
@@ -123,24 +133,44 @@ export function formatAPIError(error: any): string {
  * Show backend field errors under the matching react-hook-form inputs.
  *
  * @param fields - the form's field names; errors for other keys are returned
- *                 so the caller can show them in a toast.
+ *                 so the caller can show them in a banner.
+ * @param fieldMap - backend field name -> form field name, for fields the form
+ *                   names differently (e.g. { author: "authors" }).
  * @returns parsed error plus `unmatched` lines that couldn't be attached to a field.
  */
 export function applyAPIFieldErrors<T extends FieldValues>(
   error: any,
   setError: UseFormSetError<T>,
-  fields: readonly Path<T>[]
-): ParsedAPIError & { unmatched: string[] } {
+  fields: readonly Path<T>[],
+  fieldMap: Partial<Record<string, Path<T>>> = {}
+): AppliedAPIError {
   const parsed = parseAPIError(error);
-  const known = new Set<string>(fields);
+  const formFields = new Set<string>(fields);
   const unmatched: string[] = [];
 
-  for (const [field, msgs] of Object.entries(parsed.fieldErrors)) {
-    if (known.has(field)) {
-      setError(field as Path<T>, { type: "server", message: msgs.join(" ") });
+  for (const [backendField, msgs] of Object.entries(parsed.fieldErrors)) {
+    const formField = fieldMap[backendField] ?? backendField;
+    if (formFields.has(formField)) {
+      setError(formField as Path<T>, { type: "server", message: msgs.join(" ") });
     } else {
-      unmatched.push(`${humanize(field)}: ${msgs.join(" ")}`);
+      unmatched.push(`${fieldLabel(backendField)}: ${msgs.join(" ")}`);
     }
   }
   return { ...parsed, unmatched };
+}
+
+/**
+ * Text for the form's banner after applyAPIFieldErrors:
+ * errors with no matching input, else `inlineHint` if errors are shown inline,
+ * else the backend's message.
+ */
+export function bannerMessage(applied: AppliedAPIError, inlineHint: string): string {
+  if (applied.unmatched.length) return applied.unmatched.join("\n");
+  if (Object.keys(applied.fieldErrors).length) return inlineHint;
+  return applied.message;
+}
+
+/** True when Djoser rejected the uid/token from an emailed activation or reset link. */
+export function isBadLinkError(parsed: ParsedAPIError): boolean {
+  return "uid" in parsed.fieldErrors || "token" in parsed.fieldErrors;
 }

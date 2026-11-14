@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Path } from "react-hook-form";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -10,7 +10,8 @@ import { useAuthContext } from "../contexts/authContext";
 import { privateApi } from "../lib/api";
 import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface PhotoFormValues {
   capture_date: Date | null;
@@ -18,6 +19,13 @@ interface PhotoFormValues {
   file: File | null;
   description: string;
 }
+
+// Form fields that can show backend validation errors inline.
+const PHOTO_FIELDS: readonly Path<PhotoFormValues>[] = ["capture_date", "lake", "file", "description"];
+// Backend field name -> form field name, where they differ.
+const PHOTO_FIELD_MAP: Partial<Record<string, Path<PhotoFormValues>>> = {
+  image: "file",
+};
 
 interface PhotoModalProps {
   setShowPhotoModal: (value: boolean) => void;
@@ -39,6 +47,7 @@ export default function AddPhotoModal({
     control,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<PhotoFormValues>({
     defaultValues: {
@@ -87,16 +96,12 @@ export default function AddPhotoModal({
       setShowPhotoModal(false);
     } catch (error) {
       console.error("Error submitting photo:", error);
-      const errorMessage = formatAPIError(error);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: errorMessage,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      const applied = applyAPIFieldErrors(error, setError, PHOTO_FIELDS, PHOTO_FIELD_MAP);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }

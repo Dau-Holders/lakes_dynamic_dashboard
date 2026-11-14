@@ -11,7 +11,8 @@ import { Messages } from "primereact/messages";
 import { api } from "../lib/api";
 import { privateApi } from "../lib/api";
 import { useAuthContext } from "../contexts/authContext";
-import { applyAPIFieldErrors } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface LoginInterface {
   email: string;
@@ -42,19 +43,8 @@ export default function Login() {
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
-      const { message, unmatched } = applyAPIFieldErrors(error, setError, [
-        "email",
-        "password",
-      ]);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: unmatched.length ? unmatched.join("\n") : message,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      const applied = applyAPIFieldErrors(error, setError, ["email", "password"]);
+      showMessage(messages, "error", bannerMessage(applied, "Please fix the highlighted fields."));
     } finally {
       setLoading(false);
     }

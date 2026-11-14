@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Path } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
@@ -11,7 +11,8 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { ProjectPayload } from "../utils/types";
 import { nanoid } from "nanoid";
-import { applyAPIFieldErrors, formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface ProjectFormValues {
   title: string;
@@ -20,6 +21,9 @@ interface ProjectFormValues {
   latitude: string;
   lake: string;
 }
+
+// Form fields that can show backend validation errors inline.
+const PROJECT_FIELDS: readonly Path<ProjectFormValues>[] = ["title", "description", "longitude", "latitude", "lake"];
 
 interface ProjectModalProps {
   setShowProjectModal: (value: boolean) => void;
@@ -87,18 +91,12 @@ export default function AddProjectModal({
       setShowProjectModal(false);
     } catch (error) {
       console.error("Error submitting project:", error);
-      // Highlight inputs whose names match backend fields; toast lists everything.
-      applyAPIFieldErrors(error, setError, ["title", "description", "longitude", "latitude", "lake"]);
-      const errorMessage = formatAPIError(error);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: errorMessage,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      const applied = applyAPIFieldErrors(error, setError, PROJECT_FIELDS);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }

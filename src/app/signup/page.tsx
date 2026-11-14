@@ -11,7 +11,8 @@ import { useRef } from "react";
 import { Messages } from "primereact/messages";
 import { AxiosError } from "axios";
 import { api } from "../lib/api";
-import { applyAPIFieldErrors } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface SignUpInterface {
   username: string;
@@ -51,35 +52,18 @@ export default function Page() {
     try {
       await api.post("/auth/users/", data);
       reset();
-      messages.current?.show([
-        {
-          severity: "success",
-          detail: `Registration successful! Click the link sent to ${data.email} to activate your account`,
-          sticky: false,
-          life: 5000,
-          closable: true,
-        },
-      ]);
-    } catch (error: AxiosError | any) {
-      const { message, fieldErrors, unmatched } = applyAPIFieldErrors(
-        error,
-        setError,
-        SIGNUP_FIELDS
+      showMessage(
+        messages,
+        "success",
+        `Registration successful! Click the link sent to ${data.email} to activate your account`
       );
-      const hasFieldErrors = Object.keys(fieldErrors).length > 0;
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: unmatched.length
-            ? unmatched.join("\n")
-            : hasFieldErrors
-            ? "Registration failed. Please fix the highlighted fields."
-            : message,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+    } catch (error: AxiosError | any) {
+      const applied = applyAPIFieldErrors(error, setError, SIGNUP_FIELDS);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Registration failed. Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }

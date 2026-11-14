@@ -10,6 +10,7 @@ import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { formatAPIError } from "@/app/utils/errorHandling";
+import { showMessage } from "@/app/utils/showMessage";
 
 export default function Page() {
   const [showMetadataModal, setShowMetadataModal] = useState(false);
@@ -56,15 +57,7 @@ export default function Page() {
       );
       setMetadataList(newMetadataList);
     } catch (error: AxiosError | any) {
-      toast.current?.clear();
-      toast.current?.show([
-        {
-          severity: "error",
-          detail: formatAPIError(error),
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      showMessage(toast, "error", formatAPIError(error));
     } finally {
       setSingleMetadataLoading(false);
     }

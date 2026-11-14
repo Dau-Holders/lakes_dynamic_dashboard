@@ -8,7 +8,12 @@ import { Messages } from "primereact/messages";
 
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
-import { applyAPIFieldErrors } from "@/app/utils/errorHandling";
+import {
+  applyAPIFieldErrors,
+  bannerMessage,
+  isBadLinkError,
+} from "@/app/utils/errorHandling";
+import { showMessage } from "@/app/utils/showMessage";
 
 interface ResetPasswordInterface {
   new_password: string;
@@ -38,44 +43,21 @@ export default function Page({
         token: params.token,
         new_password: data.new_password,
       });
-
-      if (messages.current) {
-        messages.current.show([
-          {
-            severity: "success",
-            detail: "Password has been reset successfully.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-          router.push("/");
-        }, 5000);
-      }
-    } catch (error: AxiosError | any) {
-      const { message, fieldErrors, unmatched } = applyAPIFieldErrors(
-        error,
-        setError,
-        ["new_password"]
+      showMessage(
+        messages,
+        "success",
+        "Password has been reset successfully. Redirecting to login..."
       );
-      const badLink = "uid" in fieldErrors || "token" in fieldErrors;
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: badLink
-            ? "This password reset link is invalid or has expired. Please request a new one."
-            : fieldErrors.new_password
-            ? "Please choose a different password."
-            : unmatched.length
-            ? unmatched.join("\n")
-            : message,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      setTimeout(() => router.push("/"), 3000);
+    } catch (error: AxiosError | any) {
+      const applied = applyAPIFieldErrors(error, setError, ["new_password"]);
+      showMessage(
+        messages,
+        "error",
+        isBadLinkError(applied)
+          ? "This password reset link is invalid or has expired. Please request a new one."
+          : bannerMessage(applied, "Please choose a different password.")
+      );
     } finally {
       setLoading(false);
     }

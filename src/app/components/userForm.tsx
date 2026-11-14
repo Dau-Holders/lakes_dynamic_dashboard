@@ -8,6 +8,7 @@ import { useAuthContext } from "../contexts/authContext";
 import { privateApi } from "../lib/api";
 import { Toast } from "primereact/toast";
 import { formatAPIError } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 const genderOptions = [
   { label: "Male", value: "male" },
@@ -87,10 +88,8 @@ const UserForm: React.FC = () => {
         }
       );
       
-      toast.current?.show({
-        severity: "success",
+      showMessage(toast, "success", "Profile updated successfully", {
         summary: "Success",
-        detail: "Profile updated successfully",
         life: 3000,
       });
       console.log(response);
@@ -98,10 +97,8 @@ const UserForm: React.FC = () => {
       fileUploadRef.current?.clear();
     } catch (error) {
       console.error("Error submitting form data:", error);
-      toast.current?.show({
-        severity: "error",
+      showMessage(toast, "error", formatAPIError(error), {
         summary: "Error",
-        detail: formatAPIError(error),
         life: 6000,
       });
     } finally {

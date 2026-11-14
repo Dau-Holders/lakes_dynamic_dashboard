@@ -5,7 +5,8 @@ import { useEffect, useRef } from "react";
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
 import { api } from "@/app/lib/api";
-import { parseAPIError } from "@/app/utils/errorHandling";
+import { isBadLinkError, parseAPIError } from "@/app/utils/errorHandling";
+import { showMessage } from "@/app/utils/showMessage";
 
 export default function Page({
   params,
@@ -15,21 +16,13 @@ export default function Page({
   const router = useRouter();
   const messages = useRef<Messages>(null);
   // Activation tokens are single-use; guard against React strict-mode double effects.
-  const started = useRef(false);
+  const activationRequested = useRef(false);
 
   useEffect(() => {
-    if (!params.uid || !params.token || started.current) return;
-    started.current = true;
+    if (!params.uid || !params.token || activationRequested.current) return;
+    activationRequested.current = true;
 
-    messages.current?.clear();
-    messages.current?.show([
-      {
-        severity: "info",
-        detail: "Activating your account. Please wait...",
-        sticky: true,
-        closable: false,
-      },
-    ]);
+    showMessage(messages, "info", "Activating your account. Please wait...");
 
     api
       .post("/auth/users/activation/", {
@@ -37,37 +30,33 @@ export default function Page({
         token: params.token,
       })
       .then(() => {
-        messages.current?.clear();
-        messages.current?.show([
-          {
-            severity: "success",
-            detail: "Account activated successfully. Redirecting to login page...",
-            sticky: true,
-            closable: false,
-          },
-        ]);
+        showMessage(
+          messages,
+          "success",
+          "Account activated successfully. Redirecting to login page..."
+        );
         setTimeout(() => router.push("/"), 3000);
       })
       .catch((error: AxiosError) => {
-        const { message, fieldErrors, status } = parseAPIError(error);
-        let detail = message;
-        if (status === 403) {
-          // Djoser returns 403 "Stale token" when the account is already active.
-          detail = "This account is already activated. Redirecting to login page...";
-        } else if ("uid" in fieldErrors || "token" in fieldErrors) {
-          detail =
-            "This activation link is invalid or has expired. Please check your email for the correct link.";
+        const parsed = parseAPIError(error);
+        // Djoser returns 403 "Stale token" when the account is already active.
+        if (parsed.status === 403) {
+          showMessage(
+            messages,
+            "info",
+            "This account is already activated. Redirecting to login page..."
+          );
+          setTimeout(() => router.push("/"), 3000);
+          return;
         }
-        messages.current?.clear();
-        messages.current?.show([
-          {
-            severity: status === 403 ? "info" : "error",
-            detail,
-            sticky: true,
-            closable: true,
-          },
-        ]);
-        setTimeout(() => router.push("/"), status === 403 ? 3000 : 10000);
+        showMessage(
+          messages,
+          "error",
+          isBadLinkError(parsed)
+            ? "This activation link is invalid or has expired. Please check your email for the correct link."
+            : parsed.message
+        );
+        setTimeout(() => router.push("/"), 10000);
       });
   }, [params, router]);
 

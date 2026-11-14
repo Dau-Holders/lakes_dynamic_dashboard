@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Path } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
@@ -12,7 +12,8 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { MetadataPayload } from "../utils/types";
 import { nanoid } from "nanoid";
-import { applyAPIFieldErrors, formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, bannerMessage } from "../utils/errorHandling";
+import { showMessage } from "../utils/showMessage";
 
 interface MetadataFormValues {
   title: string;
@@ -22,6 +23,9 @@ interface MetadataFormValues {
   lake: string;
   file: File | null;
 }
+
+// Form fields that can show backend validation errors inline.
+const METADATA_FIELDS: readonly Path<MetadataFormValues>[] = ["title", "email", "period", "description", "lake", "file"];
 
 interface MetadataModalProps {
   setShowMetadataModal: (value: boolean) => void;
@@ -105,18 +109,12 @@ export default function AddMetadataModal({
       setShowMetadataModal(false);
     } catch (error) {
       console.error("Error submitting metadata:", error);
-      // Highlight inputs whose names match backend fields; toast lists everything.
-      applyAPIFieldErrors(error, setError, ["title", "email", "period", "description", "lake", "file"]);
-      const errorMessage = formatAPIError(error);
-      messages.current?.clear();
-      messages.current?.show([
-        {
-          severity: "error",
-          detail: errorMessage,
-          sticky: true,
-          closable: true,
-        },
-      ]);
+      const applied = applyAPIFieldErrors(error, setError, METADATA_FIELDS);
+      showMessage(
+        messages,
+        "error",
+        bannerMessage(applied, "Please fix the highlighted fields.")
+      );
     } finally {
       setLoading(false);
     }
