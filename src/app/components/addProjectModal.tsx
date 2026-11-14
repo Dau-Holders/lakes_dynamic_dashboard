@@ -11,7 +11,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { ProjectPayload } from "../utils/types";
 import { nanoid } from "nanoid";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, formatAPIError } from "../utils/errorHandling";
 
 interface ProjectFormValues {
   title: string;
@@ -87,7 +87,10 @@ export default function AddProjectModal({
       setShowProjectModal(false);
     } catch (error) {
       console.error("Error submitting project:", error);
+      // Highlight inputs whose names match backend fields; toast lists everything.
+      applyAPIFieldErrors(error, setError, ["title", "description", "longitude", "latitude", "lake"]);
       const errorMessage = formatAPIError(error);
+      messages.current?.clear();
       messages.current?.show([
         {
           severity: "error",

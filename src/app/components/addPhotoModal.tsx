@@ -88,6 +88,7 @@ export default function AddPhotoModal({
     } catch (error) {
       console.error("Error submitting photo:", error);
       const errorMessage = formatAPIError(error);
+      messages.current?.clear();
       messages.current?.show([
         {
           severity: "error",

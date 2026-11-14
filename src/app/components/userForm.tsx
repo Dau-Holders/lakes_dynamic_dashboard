@@ -7,6 +7,7 @@ import { InputText } from "primereact/inputtext";
 import { useAuthContext } from "../contexts/authContext";
 import { privateApi } from "../lib/api";
 import { Toast } from "primereact/toast";
+import { formatAPIError } from "../utils/errorHandling";
 
 const genderOptions = [
   { label: "Male", value: "male" },
@@ -100,8 +101,8 @@ const UserForm: React.FC = () => {
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "Error updating user details",
-        life: 3000,
+        detail: formatAPIError(error),
+        life: 6000,
       });
     } finally {
       setLoading(false);

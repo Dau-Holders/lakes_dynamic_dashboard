@@ -15,7 +15,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { Article } from "../utils/types";
 import { Dropdown } from "primereact/dropdown";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, formatAPIError } from "../utils/errorHandling";
 
 interface ArticleFormValues {
   title: string;
@@ -205,7 +205,10 @@ export default function AddArticleModal() {
       fileUploadRef.current?.clear();
     } catch (error) {
       console.error("Error submitting article:", error);
+      // Highlight inputs whose names match backend fields; toast lists everything.
+      applyAPIFieldErrors(error, setError, ["title", "abstract", "keywords", "file", "type"]);
       const errorMessage = formatAPIError(error);
+      messages.current?.clear();
       messages.current?.show([
         {
           severity: "error",

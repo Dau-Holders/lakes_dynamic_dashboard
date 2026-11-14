@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Messages } from "primereact/messages";
+import { formatAPIError } from "../utils/errorHandling";
 import { api } from "../lib/api";
 
 interface ResetPasswordInterface {
@@ -41,33 +42,15 @@ export default function ResetPassword() {
         }, 5000);
       }
     } catch (error: AxiosError | any) {
-      if (error.response?.data.detail && messages.current) {
-        messages.current.show([
-          {
-            severity: "error",
-            detail: error.response?.data.detail,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      } else {
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      messages.current?.clear();
+      messages.current?.show([
+        {
+          severity: "error",
+          detail: formatAPIError(error),
+          sticky: true,
+          closable: true,
+        },
+      ]);
     } finally {
       setLoading(false);
     }

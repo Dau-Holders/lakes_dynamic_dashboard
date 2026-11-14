@@ -11,6 +11,7 @@ import { useRef } from "react";
 import { Messages } from "primereact/messages";
 import { AxiosError } from "axios";
 import { api } from "../lib/api";
+import { applyAPIFieldErrors } from "../utils/errorHandling";
 
 interface SignUpInterface {
   username: string;
@@ -20,6 +21,15 @@ interface SignUpInterface {
   password: string;
   re_password: string;
 }
+
+const SIGNUP_FIELDS = [
+  "username",
+  "first_name",
+  "last_name",
+  "email",
+  "password",
+  "re_password",
+] as const;
 
 export default function Page() {
   const {
@@ -39,7 +49,7 @@ export default function Page() {
   async function onSubmit(data: SignUpInterface) {
     setLoading(true);
     try {
-      const response = await api.post("/auth/users/", data);
+      await api.post("/auth/users/", data);
       reset();
       messages.current?.show([
         {
@@ -51,39 +61,25 @@ export default function Page() {
         },
       ]);
     } catch (error: AxiosError | any) {
-      if (error.response?.data) {
-        const serverErrors = error.response.data;
-        Object.keys(serverErrors).forEach((field) => {
-          const messages = serverErrors[field];
-          messages.forEach((message: string) => {
-            setError(field as keyof SignUpInterface, {
-              type: "server",
-              message,
-            });
-          });
-        });
-        // Show general error message
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "Registration failed. Please check the form for errors.",
-            sticky: false,
-            life: 5000,
-            closable: true,
-          },
-        ]);
-      } else {
-        // Show network/server error
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "Network error. Please try again later.",
-            sticky: false,
-            life: 5000,
-            closable: true,
-          },
-        ]);
-      }
+      const { message, fieldErrors, unmatched } = applyAPIFieldErrors(
+        error,
+        setError,
+        SIGNUP_FIELDS
+      );
+      const hasFieldErrors = Object.keys(fieldErrors).length > 0;
+      messages.current?.clear();
+      messages.current?.show([
+        {
+          severity: "error",
+          detail: unmatched.length
+            ? unmatched.join("\n")
+            : hasFieldErrors
+            ? "Registration failed. Please fix the highlighted fields."
+            : message,
+          sticky: true,
+          closable: true,
+        },
+      ]);
     } finally {
       setLoading(false);
     }

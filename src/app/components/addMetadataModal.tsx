@@ -12,7 +12,7 @@ import useLakes from "../hooks/useLakes";
 import { Messages } from "primereact/messages";
 import { MetadataPayload } from "../utils/types";
 import { nanoid } from "nanoid";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors, formatAPIError } from "../utils/errorHandling";
 
 interface MetadataFormValues {
   title: string;
@@ -105,7 +105,10 @@ export default function AddMetadataModal({
       setShowMetadataModal(false);
     } catch (error) {
       console.error("Error submitting metadata:", error);
+      // Highlight inputs whose names match backend fields; toast lists everything.
+      applyAPIFieldErrors(error, setError, ["title", "email", "period", "description", "lake", "file"]);
       const errorMessage = formatAPIError(error);
+      messages.current?.clear();
       messages.current?.show([
         {
           severity: "error",

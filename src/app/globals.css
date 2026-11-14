@@ -48,3 +48,8 @@ body {
 .p-sidebar-link:hover {
   background-color: #f0f0f0;
 }
+/* Show multi-line API error messages (one field per line) in PrimeReact Messages/Toast */
+.p-message .p-message-detail,
+.p-toast .p-toast-message-text .p-toast-detail {
+  white-space: pre-line;
+}

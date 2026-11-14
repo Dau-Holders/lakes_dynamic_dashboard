@@ -11,7 +11,7 @@ import { Messages } from "primereact/messages";
 import { api } from "../lib/api";
 import { privateApi } from "../lib/api";
 import { useAuthContext } from "../contexts/authContext";
-import { formatAPIError } from "../utils/errorHandling";
+import { applyAPIFieldErrors } from "../utils/errorHandling";
 
 interface LoginInterface {
   email: string;
@@ -22,6 +22,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<LoginInterface>();
 
@@ -41,11 +42,15 @@ export default function Login() {
         payload: userResponse.data?.profile,
       });
     } catch (error: AxiosError | any) {
-      const errorMessage = formatAPIError(error);
+      const { message, unmatched } = applyAPIFieldErrors(error, setError, [
+        "email",
+        "password",
+      ]);
+      messages.current?.clear();
       messages.current?.show([
         {
           severity: "error",
-          detail: errorMessage,
+          detail: unmatched.length ? unmatched.join("\n") : message,
           sticky: true,
           closable: true,
         },

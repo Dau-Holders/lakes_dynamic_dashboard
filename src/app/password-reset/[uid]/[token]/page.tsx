@@ -8,6 +8,7 @@ import { Messages } from "primereact/messages";
 
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
+import { applyAPIFieldErrors } from "@/app/utils/errorHandling";
 
 interface ResetPasswordInterface {
   new_password: string;
@@ -25,10 +26,9 @@ export default function Page({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<ResetPasswordInterface>();
-
-  console.log(params);
 
   async function onSubmit(data: ResetPasswordInterface) {
     setLoading(true);
@@ -55,34 +55,27 @@ export default function Page({
         }, 5000);
       }
     } catch (error: AxiosError | any) {
-      console.log(error.response);
-      if (error.response?.data.new_password && messages.current) {
-        messages.current.show([
-          {
-            severity: "error",
-            detail: error.response?.data.new_password,
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      } else {
-        messages.current?.show([
-          {
-            severity: "error",
-            detail: "An unexpected error occurred. Please try again.",
-            sticky: true,
-            closable: false,
-          },
-        ]);
-
-        setTimeout(() => {
-          messages.current?.clear();
-        }, 5000);
-      }
+      const { message, fieldErrors, unmatched } = applyAPIFieldErrors(
+        error,
+        setError,
+        ["new_password"]
+      );
+      const badLink = "uid" in fieldErrors || "token" in fieldErrors;
+      messages.current?.clear();
+      messages.current?.show([
+        {
+          severity: "error",
+          detail: badLink
+            ? "This password reset link is invalid or has expired. Please request a new one."
+            : fieldErrors.new_password
+            ? "Please choose a different password."
+            : unmatched.length
+            ? unmatched.join("\n")
+            : message,
+          sticky: true,
+          closable: true,
+        },
+      ]);
     } finally {
       setLoading(false);
     }
